@@ -1,0 +1,910 @@
+﻿using System;
+using System.ComponentModel;
+using System.Data;
+using System.Data.SqlClient;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace QuanLyNhanVien
+{
+    public partial class Form1 : Form
+    {
+        // Chuỗi kết nối (điều chỉnh lại nếu khác máy)
+        // Lưu ý: trong chuỗi @ (verbatim string) chỉ cần 1 dấu '\\' để biểu diễn 1 backslash thực.
+        // Trước đây để 2 dấu \\ => thực tế thành hai backslash và gây lỗi 'Instance failure'.
+        // Nếu vẫn lỗi, thử các phương án: 
+        //   @"Data Source=.\\SQLEXPRESS;..." hoặc @"Data Source=(local);..." hoặc @"Data Source=localhost;..."
+        private readonly string connectionString =
+            @"Data Source=GYEST\SQLEXPRESS;Initial Catalog=BookstoreDB;Integrated Security=True;TrustServerCertificate=True";
+
+        // State
+        private DataTable dtEmployees;            // Data nguồn cho DataGridView nhân viên
+        private int currentEmployeeId = 0;        // ID bản ghi đang sửa
+        private bool isEmployeeEditing = false;   // Cờ trạng thái đang Add/Edit
+        // Role state
+        private DataTable dtRoles;                // Data nguồn cho dgvRoles (tab Vai trò)
+        private int currentRoleId = 0;
+        private bool isRoleEditing = false;       // Add/Edit for role
+        // Shift state
+        private DataTable dtShifts;               // Data nguồn cho dgvShifts
+        private int currentShiftId = 0;           // ID ca đang sửa
+        private bool isShiftEditing = false;      // Cờ trạng thái ca
+
+        private const int SHIFT_START_HOUR = 6;   // Khung giờ yêu cầu phủ (cùng logic service cũ)
+        private const int SHIFT_END_HOUR = 22;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                LoadRoles(); // roles for employee combo
+                LoadEmployees();
+                LoadRolesGrid(); // load roles into second tab grid
+                dataGridViewEmployees.SelectionChanged += DataGridViewEmployees_SelectionChanged;
+                dgvRoles.SelectionChanged += DgvRoles_SelectionChanged;
+                // Shift tab events
+                dgvShifts.SelectionChanged += DgvShifts_SelectionChanged; // dtpDate event đã gắn trong Designer
+                // Khởi tạo controls shift
+                InitializeShiftTabDefaults();
+                LoadEmployeesForShift();
+                LoadShiftsByDate();
+                SetEmployeeFormState(false);
+                SetRoleFormState(false);
+                SetShiftFormState(false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khởi động: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+
+        #region Tải dữ liệu
+        private void ShowSqlError(string context, Exception ex)
+        {
+            var sb = new StringBuilder();
+            sb.Append(context).Append(": ").Append(ex.Message);
+
+            // Đã có using System.Data.SqlClient; nên dùng trực tiếp SqlException
+            if (ex is SqlException sqlEx)
+            {
+                sb.Append($" (SqlError {sqlEx.Number})");
+
+                // .NET Framework 4.7.2 chưa có string.Contains(string, StringComparison)
+                if (ex.Message.IndexOf("Instance failure", StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    sb.AppendLine()
+                      .AppendLine("Gợi ý:")
+                      .AppendLine(" - Kiểm tra tên instance SQL Server (ví dụ: MACHINENAME\\SQLEXPRESS).")
+                      .AppendLine(" - Đảm bảo dịch vụ SQL Server đang chạy (SQL Server (SQLEXPRESS)).")
+                      .AppendLine(" - Chuỗi kết nối chỉ dùng một backslash.")
+                      .AppendLine(" - Có thể thử: .\\SQLEXPRESS hoặc (local) hoặc localhost.");
+                }
+            }
+
+            MessageBox.Show(sb.ToString(), "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
+        private void LoadEmployees()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var da = new SqlDataAdapter(@"SELECT id, name, email, phone, address, birth_date, role_id, hire_date, salary FROM employees ORDER BY name", conn))
+                {
+                    dtEmployees = new DataTable();
+                    da.Fill(dtEmployees);
+                    dataGridViewEmployees.DataSource = dtEmployees;
+
+                    if (dataGridViewEmployees.Columns.Count > 0)
+                    {
+                        dataGridViewEmployees.Columns["id"].HeaderText = "ID";
+                        dataGridViewEmployees.Columns["name"].HeaderText = "Họ và tên";
+                        dataGridViewEmployees.Columns["email"].HeaderText = "Email";
+                        dataGridViewEmployees.Columns["phone"].HeaderText = "Điện thoại";
+                        dataGridViewEmployees.Columns["address"].HeaderText = "Địa chỉ";
+                        dataGridViewEmployees.Columns["birth_date"].HeaderText = "Ngày sinh";
+                        dataGridViewEmployees.Columns["role_id"].Visible = false; // Ẩn khóa ngoại
+                        dataGridViewEmployees.Columns["hire_date"].HeaderText = "Ngày vào làm";
+                        dataGridViewEmployees.Columns["salary"].HeaderText = "Lương";
+                        var colSalary = dataGridViewEmployees.Columns["salary"];
+                        if (colSalary != null)
+                        {
+                            colSalary.DefaultCellStyle.Format = "N2";          // 5,000,000.00
+                            colSalary.DefaultCellStyle.Alignment = DataGridViewContentAlignment.MiddleRight;
+                            colSalary.HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleRight;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex) { ShowSqlError("Lỗi tải nhân viên", ex); }
+        }
+
+        private void LoadRoles()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand("SELECT id, name FROM roles ORDER BY name", conn))
+                using (var da = new SqlDataAdapter(cmd))
+                {
+                    var dt = new DataTable();
+                    da.Fill(dt);
+                    cmbRole.DisplayMember = "name";
+                    cmbRole.ValueMember = "id";
+                    cmbRole.DataSource = dt;
+                    cmbRole.SelectedIndex = -1;
+                }
+            }
+            catch (Exception ex) { ShowSqlError("Lỗi tải chức vụ", ex); }
+        }
+
+        private void LoadRolesGrid()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var da = new SqlDataAdapter("SELECT id, name, description, created_at FROM roles ORDER BY name", conn))
+                {
+                    dtRoles = new DataTable();
+                    da.Fill(dtRoles);
+                    dgvRoles.DataSource = dtRoles; // dgvRoles là grid của tab Vai trò
+                    if (dgvRoles.Columns.Count > 0)
+                    {
+                        dgvRoles.Columns["id"].HeaderText = "ID";
+                        dgvRoles.Columns["name"].HeaderText = "Tên chức vụ";
+                        dgvRoles.Columns["description"].HeaderText = "Mô tả";
+                        dgvRoles.Columns["created_at"].HeaderText = "Tạo lúc";
+                    }
+                }
+            }
+            catch (Exception ex) { ShowSqlError("Lỗi tải danh sách chức vụ", ex); }
+        }
+        #endregion
+
+        #region State & Helper
+        private void ClearEmployeeForm()
+        {
+            txtFullName.Clear();
+            txtEmail.Clear();
+            txtPhone.Clear();
+            txtAddress.Clear();
+            dtpBirthDate.Value = DateTime.Today.AddYears(-18);
+            cmbRole.SelectedIndex = -1;
+            dtpHireDate.Value = DateTime.Today;
+            nudSalary.Value = 0;
+            currentEmployeeId = 0;
+        }
+
+        private void SetEmployeeFormState(bool editing)
+        {
+            isEmployeeEditing = editing;
+            groupBox1.Enabled = editing;
+
+            btnSave.Visible = editing;
+            btnCancel.Visible = editing;
+
+            btnAdd.Enabled = !editing;
+            btnEdit.Enabled = !editing && dataGridViewEmployees.SelectedRows.Count > 0;
+            btnDelete.Enabled = !editing && dataGridViewEmployees.SelectedRows.Count > 0;
+            btnRefresh.Enabled = !editing;
+        }
+
+        private void DataGridViewEmployees_SelectionChanged(object sender, EventArgs e)
+        {
+            if (isEmployeeEditing) return;
+            if (dataGridViewEmployees.SelectedRows.Count == 0)
+            {
+                ClearEmployeeForm();
+                return;
+            }
+
+            var row = dataGridViewEmployees.SelectedRows[0];
+            if (row.Cells["id"].Value == null) return;
+
+            currentEmployeeId = Convert.ToInt32(row.Cells["id"].Value);
+            txtFullName.Text = row.Cells["name"].Value?.ToString();
+            txtEmail.Text = row.Cells["email"].Value?.ToString();
+            txtPhone.Text = row.Cells["phone"].Value?.ToString();
+            txtAddress.Text = row.Cells["address"].Value?.ToString();
+            var birth = row.Cells["birth_date"].Value as DateTime?; if (birth.HasValue) dtpBirthDate.Value = birth.Value;
+            var hire = row.Cells["hire_date"].Value as DateTime?; if (hire.HasValue) dtpHireDate.Value = hire.Value;
+            if (row.Cells["role_id"].Value != null)
+                cmbRole.SelectedValue = row.Cells["role_id"].Value;
+            decimal sal;
+            if (row.Cells["salary"].Value != null && decimal.TryParse(row.Cells["salary"].Value.ToString(), out sal))
+                nudSalary.Value = sal <= nudSalary.Maximum ? sal : nudSalary.Maximum;
+
+            // Cập nhật enable các nút theo selection mới
+            btnEdit.Enabled = dataGridViewEmployees.SelectedRows.Count > 0 && !isEmployeeEditing;
+            btnDelete.Enabled = btnEdit.Enabled;
+        }
+        #endregion
+
+        #region Role Helpers
+        private void ClearRoleForm()
+        {
+            txtName.Clear();
+            txtDescription.Clear();
+            currentRoleId = 0;
+        }
+
+        private void SetRoleFormState(bool editing)
+        {
+            isRoleEditing = editing;
+            groupBox2.Enabled = editing;
+            btnSave2.Visible = editing;
+            btnCancel2.Visible = editing;
+            btnAdd2.Enabled = !editing;
+            btnEdit2.Enabled = !editing && dgvRoles.SelectedRows.Count > 0;
+            btnDelete2.Enabled = !editing && dgvRoles.SelectedRows.Count > 0;
+            btnRefresh2.Enabled = !editing;
+        }
+
+        private void DgvRoles_SelectionChanged(object sender, EventArgs e)
+        {
+            if (isRoleEditing) return;
+            if (dgvRoles.SelectedRows.Count == 0)
+            {
+                ClearRoleForm();
+                return;
+            }
+            var row = dgvRoles.SelectedRows[0];
+            if (row.Cells["id"].Value == null) return;
+            currentRoleId = Convert.ToInt32(row.Cells["id"].Value);
+            txtName.Text = row.Cells["name"].Value?.ToString();
+            txtDescription.Text = row.Cells["description"].Value?.ToString();
+            btnEdit2.Enabled = true;
+            btnDelete2.Enabled = true;
+        }
+        #endregion
+
+        #region Event: Buttons (Nhân viên)
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            currentEmployeeId = 0;
+            ClearEmployeeForm();
+            SetEmployeeFormState(true);
+            txtFullName.Focus();
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewEmployees.SelectedRows.Count == 0) return;
+            SetEmployeeFormState(true);
+            txtFullName.Focus();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (dataGridViewEmployees.SelectedRows.Count == 0) return;
+            var row = dataGridViewEmployees.SelectedRows[0];
+            var name = row.Cells["name"].Value?.ToString();
+            var id = currentEmployeeId;
+
+            var dr = MessageBox.Show($"Xác nhận xóa nhân viên '{name}'?", "Xóa nhân viên", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dr != DialogResult.Yes) return;
+
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand("DELETE FROM employees WHERE id = @id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    if (rows > 0)
+                        MessageBox.Show("Xóa thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                        MessageBox.Show("Không tìm thấy nhân viên.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xóa: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            LoadEmployees();
+            ClearEmployeeForm();
+            SetEmployeeFormState(false);
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            LoadRoles();
+            LoadEmployees();
+            ClearEmployeeForm();
+            SetEmployeeFormState(false);
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            // Validate
+            if (string.IsNullOrWhiteSpace(txtFullName.Text))
+            {
+                MessageBox.Show("Họ và tên không được để trống.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtFullName.Focus();
+                return;
+            }
+            if (cmbRole.SelectedIndex < 0)
+            {
+                MessageBox.Show("Vui lòng chọn chức vụ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbRole.Focus();
+                return;
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    if (currentEmployeeId == 0)
+                    {
+                        cmd.CommandText = @"INSERT INTO employees (name, email, phone, address, birth_date, role_id, hire_date, salary) VALUES (@name, @email, @phone, @address, @birth_date, @role_id, @hire_date, @salary)";
+                    }
+                    else
+                    {
+                        cmd.CommandText = @"UPDATE employees SET name=@name, email=@email, phone=@phone, address=@address, birth_date=@birth_date, role_id=@role_id, hire_date=@hire_date, salary=@salary WHERE id=@id";
+                        cmd.Parameters.AddWithValue("@id", currentEmployeeId);
+                    }
+
+                    cmd.Parameters.AddWithValue("@name", txtFullName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@email", (object)txtEmail.Text.Trim() ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@phone", (object)txtPhone.Text.Trim() ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@address", (object)txtAddress.Text.Trim() ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@birth_date", dtpBirthDate.Value.Date);
+                    cmd.Parameters.AddWithValue("@role_id", cmbRole.SelectedValue);
+                    cmd.Parameters.AddWithValue("@hire_date", dtpHireDate.Value.Date);
+                    cmd.Parameters.AddWithValue("@salary", nudSalary.Value);
+
+                    conn.Open();
+                    int affected = cmd.ExecuteNonQuery();
+                    if (affected > 0)
+                    {
+                        MessageBox.Show(currentEmployeeId == 0 ? "Thêm nhân viên thành công!" : "Cập nhật nhân viên thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Không lưu được dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lưu: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            LoadEmployees();
+            SetEmployeeFormState(false);
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            SetEmployeeFormState(false);
+            DataGridViewEmployees_SelectionChanged(null, null);
+        }
+        #endregion
+
+        #region Event: Buttons (Vai trò)
+        private void btnAdd2_Click(object sender, EventArgs e)
+        {
+            currentRoleId = 0;
+            ClearRoleForm();
+            SetRoleFormState(true);
+            txtName.Focus();
+        }
+
+        private void btnEdit2_Click(object sender, EventArgs e)
+        {
+            if (dgvRoles.SelectedRows.Count == 0) return;
+            SetRoleFormState(true);
+            txtName.Focus();
+        }
+
+        private void btnDelete2_Click(object sender, EventArgs e)
+        {
+            if (dgvRoles.SelectedRows.Count == 0) return;
+            var row = dgvRoles.SelectedRows[0];
+            var name = row.Cells["name"].Value?.ToString();
+            var id = currentRoleId;
+            var dr = MessageBox.Show($"Xác nhận xóa chức vụ '{name}'?", "Xóa chức vụ", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dr != DialogResult.Yes) return;
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand("DELETE FROM roles WHERE id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    if (rows > 0) MessageBox.Show("Xóa thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else MessageBox.Show("Không tìm thấy chức vụ.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xóa chức vụ: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            LoadRolesGrid();
+            LoadRoles(); // refresh combobox for employees
+            ClearRoleForm();
+            SetRoleFormState(false);
+        }
+
+        private void btnRefresh2_Click(object sender, EventArgs e)
+        {
+            LoadRolesGrid();
+            ClearRoleForm();
+            SetRoleFormState(false);
+        }
+
+        private void btnSave2_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtName.Text))
+            {
+                MessageBox.Show("Tên chức vụ không được để trống.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtName.Focus();
+                return;
+            }
+            if (txtName.Text.Length > 50)
+            {
+                MessageBox.Show("Tên chức vụ tối đa 50 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            if (txtDescription.Text.Length > 255)
+            {
+                MessageBox.Show("Mô tả tối đa 255 ký tự.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    if (currentRoleId == 0)
+                        cmd.CommandText = "INSERT INTO roles (name, description) VALUES (@name, @description)";
+                    else
+                    {
+                        cmd.CommandText = "UPDATE roles SET name=@name, description=@description WHERE id=@id";
+                        cmd.Parameters.AddWithValue("@id", currentRoleId);
+                    }
+                    cmd.Parameters.AddWithValue("@name", txtName.Text.Trim());
+                    cmd.Parameters.AddWithValue("@description", string.IsNullOrWhiteSpace(txtDescription.Text) ? (object)DBNull.Value : txtDescription.Text.Trim());
+                    conn.Open();
+                    int affected = cmd.ExecuteNonQuery();
+                    if (affected > 0)
+                        MessageBox.Show(currentRoleId == 0 ? "Thêm chức vụ thành công!" : "Cập nhật chức vụ thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                        MessageBox.Show("Không lưu được dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lưu chức vụ: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            LoadRolesGrid();
+            LoadRoles();
+            SetRoleFormState(false);
+        }
+
+        private void btnCancel2_Click(object sender, EventArgs e)
+        {
+            SetRoleFormState(false);
+            DgvRoles_SelectionChanged(null, null);
+        }
+        #endregion
+
+        #region Shift Loaders
+        private void LoadEmployeesForShift()
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var da = new SqlDataAdapter("SELECT id, name FROM employees ORDER BY name", conn))
+                {
+                    var dt = new DataTable();
+                    da.Fill(dt);
+                    cmbEmployee.DisplayMember = "name";
+                    cmbEmployee.ValueMember = "id";
+                    cmbEmployee.DataSource = dt;
+                    cmbEmployee.SelectedIndex = -1;
+                }
+            }
+            catch (Exception ex) { ShowSqlError("Lỗi tải danh sách nhân viên (xếp ca)", ex); }
+        }
+
+        private void LoadShiftsByDate()
+        {
+            var date = dtpDate.Value.Date;
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var da = new SqlDataAdapter(@"SELECT s.id, s.employee_id, e.name AS employee_name, s.shift_date, s.start_time, s.end_time, s.break_duration, s.overtime_hours, s.status, s.notes
+                                                     FROM shifts s INNER JOIN employees e ON s.employee_id = e.id
+                                                     WHERE s.shift_date = @d ORDER BY s.start_time", conn))
+                {
+                    da.SelectCommand.Parameters.AddWithValue("@d", date);
+                    dtShifts = new DataTable();
+                    da.Fill(dtShifts);
+                    dgvShifts.DataSource = dtShifts;
+                    if (dgvShifts.Columns.Count > 0)
+                    {
+                        dgvShifts.Columns["id"].HeaderText = "ID";
+                        dgvShifts.Columns["employee_id"].Visible = false;
+                        dgvShifts.Columns["employee_name"].HeaderText = "Nhân viên";
+                        dgvShifts.Columns["shift_date"].HeaderText = "Ngày";
+                        dgvShifts.Columns["start_time"].HeaderText = "Bắt đầu";
+                        dgvShifts.Columns["end_time"].HeaderText = "Kết thúc";
+                        dgvShifts.Columns["break_duration"].HeaderText = "Nghỉ (phút)";
+                        dgvShifts.Columns["overtime_hours"].HeaderText = "Tăng ca";
+                        dgvShifts.Columns["status"].HeaderText = "Trạng thái";
+                        dgvShifts.Columns["notes"].HeaderText = "Ghi chú";
+                    }
+                }
+            }
+            catch (Exception ex) { ShowSqlError("Lỗi tải ca làm", ex); }
+        }
+        #endregion
+
+        #region Shift Helpers & State
+        private void InitializeShiftTabDefaults()
+        {
+            dtpDate.Value = DateTime.Today;
+            dtpStart.Format = DateTimePickerFormat.Time;
+            dtpStart.ShowUpDown = true;
+            dtpEnd.Format = DateTimePickerFormat.Time;
+            dtpEnd.ShowUpDown = true;
+            dtpStart.Value = DateTime.Today.AddHours(SHIFT_START_HOUR);
+            dtpEnd.Value = DateTime.Today.AddHours(SHIFT_START_HOUR + 4); // default 4h ca
+            nudBreak.Minimum = 0;
+            nudBreak.Maximum = 600; // 10h
+            nudBreak.Value = 0;
+        }
+
+        private void ClearShiftForm()
+        {
+            currentShiftId = 0;
+            cmbEmployee.SelectedIndex = -1;
+            dtpStart.Value = DateTime.Today.AddHours(SHIFT_START_HOUR);
+            dtpEnd.Value = DateTime.Today.AddHours(SHIFT_START_HOUR + 4);
+            nudBreak.Value = 0;
+            txtNotes.Clear();
+        }
+
+        private void SetShiftFormState(bool editing)
+        {
+            isShiftEditing = editing;
+            groupBox3.Enabled = editing;
+            btnSave3.Visible = editing;
+            btnCancel3.Visible = editing;
+            button4.Enabled = !editing; // Add
+            btnEdit3.Enabled = !editing && dgvShifts.SelectedRows.Count > 0;
+            btnDelete3.Enabled = !editing && dgvShifts.SelectedRows.Count > 0;
+            btnCoverage.Enabled = !editing;            
+        }
+
+        private void DgvShifts_SelectionChanged(object sender, EventArgs e)
+        {
+            if (isShiftEditing) return;
+            if (dgvShifts.SelectedRows.Count == 0)
+            {
+                ClearShiftForm();
+                return;
+            }
+            var row = dgvShifts.SelectedRows[0];
+            if (row.Cells["id"].Value == null) return;
+            currentShiftId = Convert.ToInt32(row.Cells["id"].Value);
+            if (row.Cells["employee_id"].Value != null)
+                cmbEmployee.SelectedValue = row.Cells["employee_id"].Value;
+            if (row.Cells["start_time"].Value != null)
+            {
+                TimeSpan st = (TimeSpan)row.Cells["start_time"].Value;
+                dtpStart.Value = dtpDate.Value.Date + st;
+            }
+            if (row.Cells["end_time"].Value != null && row.Cells["end_time"].Value != DBNull.Value)
+            {
+                TimeSpan et = (TimeSpan)row.Cells["end_time"].Value;
+                dtpEnd.Value = dtpDate.Value.Date + et;
+            }
+            if (row.Cells["break_duration"].Value != null)
+            {
+                int bd; if (int.TryParse(row.Cells["break_duration"].Value.ToString(), out bd))
+                    nudBreak.Value = Math.Min(bd, (int)nudBreak.Maximum);
+            }
+            txtNotes.Text = row.Cells["notes"].Value?.ToString();
+            btnEdit3.Enabled = true;
+            btnDelete3.Enabled = true;
+        }
+
+        private bool ValidateShiftInput(out TimeSpan start, out TimeSpan end, out int breakMinutes)
+        {
+            start = dtpStart.Value.TimeOfDay;
+            end = dtpEnd.Value.TimeOfDay;
+            breakMinutes = (int)nudBreak.Value;
+            var min = TimeSpan.FromHours(SHIFT_START_HOUR);
+            var max = TimeSpan.FromHours(SHIFT_END_HOUR);
+            if (cmbEmployee.SelectedIndex < 0)
+            {
+                MessageBox.Show("Vui lòng chọn nhân viên.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return false;
+            }
+            if (start < min || start > max)
+            {
+                MessageBox.Show("Giờ bắt đầu phải trong khung 06:00–22:00", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return false;
+            }
+            if (end <= start)
+            {
+                MessageBox.Show("Giờ kết thúc phải sau giờ bắt đầu", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return false;
+            }
+            if (end > max)
+            {
+                MessageBox.Show("Giờ kết thúc không vượt quá 22:00", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return false;
+            }
+            var totalMin = (end - start).TotalMinutes;
+            if (breakMinutes < 0 || breakMinutes > totalMin)
+            {
+                MessageBox.Show("Thời gian nghỉ không hợp lệ", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning); return false;
+            }
+            return true;
+        }
+
+        private void ComputeCoverage()
+        {
+            // Thuật toán gộp khoảng thời gian có end_time để tìm khoảng thiếu giữa 06:00-22:00
+            var intervals = dtShifts?.AsEnumerable()
+                .Where(r => r.Field<object>("end_time") != null && r["end_time"] != DBNull.Value)
+                .Select(r => (
+                    Start: (TimeSpan)r["start_time"],
+                    End: (TimeSpan)r["end_time"]
+                ))
+                .OrderBy(iv => iv.Start)
+                .ToList() ?? new System.Collections.Generic.List<(TimeSpan Start, TimeSpan End)>();
+
+            var merged = new System.Collections.Generic.List<(TimeSpan Start, TimeSpan End)>();
+            foreach (var iv in intervals)
+            {
+                if (merged.Count == 0 || iv.Start > merged[merged.Count - 1].End)
+                    merged.Add(iv);
+                else if (iv.End > merged[merged.Count - 1].End)
+                    merged[merged.Count - 1] = (merged[merged.Count - 1].Start, iv.End);
+            }
+            var reqStart = TimeSpan.FromHours(SHIFT_START_HOUR);
+            var reqEnd = TimeSpan.FromHours(SHIFT_END_HOUR);
+            var gaps = new System.Collections.Generic.List<(TimeSpan Start, TimeSpan End)>();
+            var cursor = reqStart;
+            foreach (var block in merged)
+            {
+                if (block.End <= reqStart || block.Start >= reqEnd) continue;
+                var bs = block.Start < reqStart ? reqStart : block.Start;
+                var be = block.End > reqEnd ? reqEnd : block.End;
+                if (bs > cursor) gaps.Add((cursor, bs));
+                if (be > cursor) cursor = be;
+            }
+            if (cursor < reqEnd) gaps.Add((cursor, reqEnd));
+
+            if (gaps.Count == 0)
+                MessageBox.Show("ĐÃ PHỦ ĐẦY đủ khung 06:00-22:00", "Coverage", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            else
+            {
+                var sb = new StringBuilder();
+                sb.AppendLine("Thiếu các đoạn:");
+                foreach (var g in gaps)
+                    sb.AppendLine($" - {g.Start:hh\\:mm} -> {g.End:hh\\:mm}");
+                MessageBox.Show(sb.ToString(), "Coverage", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+        }
+        #endregion
+
+        #region Shift Events
+        private void dtpDate_ValueChanged(object sender, EventArgs e)
+        {
+            if (!isShiftEditing)
+            {
+                LoadShiftsByDate();
+                ClearShiftForm();
+                SetShiftFormState(false);
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e) // Add shift
+        {
+            currentShiftId = 0;
+            ClearShiftForm();
+            SetShiftFormState(true);
+            cmbEmployee.Focus();
+        }
+
+        private void btnEdit3_Click(object sender, EventArgs e)
+        {
+            if (dgvShifts.SelectedRows.Count == 0) return;
+            SetShiftFormState(true);
+            cmbEmployee.Focus();
+        }
+
+        private void btnDelete3_Click(object sender, EventArgs e)
+        {
+            if (dgvShifts.SelectedRows.Count == 0) return;
+            var row = dgvShifts.SelectedRows[0];
+            var emp = row.Cells["employee_name"].Value?.ToString();
+            var id = currentShiftId;
+            var dr = MessageBox.Show($"Xác nhận xóa ca của '{emp}'?", "Xóa ca", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dr != DialogResult.Yes) return;
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand("DELETE FROM shifts WHERE id=@id", conn))
+                {
+                    cmd.Parameters.AddWithValue("@id", id);
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    if (rows > 0)
+                        MessageBox.Show("Xóa ca thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                        MessageBox.Show("Không tìm thấy ca.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi xóa ca: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            LoadShiftsByDate();
+            ClearShiftForm();
+            SetShiftFormState(false);
+        }
+
+        private void btnSave3_Click(object sender, EventArgs e)
+        {
+            TimeSpan st, et; int br;
+            if (!ValidateShiftInput(out st, out et, out br)) return;
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                using (var cmd = new SqlCommand())
+                {
+                    cmd.Connection = conn;
+                    if (currentShiftId == 0)
+                    {
+                        cmd.CommandText = @"INSERT INTO shifts (employee_id, shift_date, start_time, end_time, break_duration, overtime_hours, status, notes)
+                                            VALUES (@emp,@date,@st,@et,@break,0,'Scheduled',@notes)";
+                    }
+                    else
+                    {
+                        cmd.CommandText = @"UPDATE shifts SET employee_id=@emp, shift_date=@date, start_time=@st, end_time=@et, break_duration=@break, notes=@notes WHERE id=@id";
+                        cmd.Parameters.AddWithValue("@id", currentShiftId);
+                    }
+                    cmd.Parameters.AddWithValue("@emp", cmbEmployee.SelectedValue);
+                    cmd.Parameters.AddWithValue("@date", dtpDate.Value.Date);
+                    cmd.Parameters.AddWithValue("@st", st);
+                    cmd.Parameters.AddWithValue("@et", et);
+                    cmd.Parameters.AddWithValue("@break", br);
+                    cmd.Parameters.AddWithValue("@notes", string.IsNullOrWhiteSpace(txtNotes.Text) ? (object)DBNull.Value : txtNotes.Text.Trim());
+                    conn.Open();
+                    int rows = cmd.ExecuteNonQuery();
+                    if (rows > 0)
+                        MessageBox.Show(currentShiftId == 0 ? "Thêm ca thành công!" : "Cập nhật ca thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    else
+                        MessageBox.Show("Không lưu được ca.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi lưu ca: " + ex.Message, "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+            LoadShiftsByDate();
+            SetShiftFormState(false);
+        }
+
+        private void btnCancel3_Click(object sender, EventArgs e)
+        {
+            SetShiftFormState(false);
+            DgvShifts_SelectionChanged(null, null);
+        }
+
+        private void btnCoverage_Click(object sender, EventArgs e)
+        {
+            ComputeCoverage();
+        }
+        #endregion
+
+        #region Handlers chưa dùng (để Designer không lỗi)
+        private void label8_Click(object sender, EventArgs e) { }
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e) { }
+        private void tabPageEmployee_Click(object sender, EventArgs e) { }
+        private void dgvRoles_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void txtFullName_TextChanged(object sender, EventArgs e) { }
+        private void txtEmail_TextChanged(object sender, EventArgs e) { }
+        private void txtPhone_TextChanged(object sender, EventArgs e) { }
+        private void txtAddress_TextChanged(object sender, EventArgs e) { }
+        private void dtpBirthDate_ValueChanged(object sender, EventArgs e) { }
+        private void cmbRole_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void dtpHireDate_ValueChanged(object sender, EventArgs e) { }
+        private void nudSalary_ValueChanged(object sender, EventArgs e) { }
+        private void tabPageRole_Click(object sender, EventArgs e) { }
+        private void txtName_TextChanged(object sender, EventArgs e) { }
+        private void txtDescription_TextChanged(object sender, EventArgs e) { }
+        private void tabPageShift_Click(object sender, EventArgs e) { }
+        private void dgvShifts_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void cmbEmployee_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void dtpEnd_ValueChanged(object sender, EventArgs e) { }
+        private void nudBreak_ValueChanged(object sender, EventArgs e) { }
+        private void txtNotes_TextChanged(object sender, EventArgs e) { }
+
+        #endregion
+
+        private void dataGridViewEmployees_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtFindName_TextChanged(object sender, EventArgs e)
+        {
+            // Live filter as user types
+            ApplyEmployeeNameFilter();
+        }
+
+        // Helper: escape special characters for DataView RowFilter LIKE pattern
+        private string EscapeLikeValue(string value)
+        {
+            if (string.IsNullOrEmpty(value)) return string.Empty;
+            // Escape apostrophe and LIKE wildcards %, _, [, ]
+            var sb = new StringBuilder();
+            foreach (var ch in value)
+            {
+                switch (ch)
+                {
+                    case '%':
+                    case '*': // treat * as wildcard user might type
+                    case '_':
+                    case '[':
+                    case ']':
+                        sb.Append('[').Append(ch).Append(']');
+                        break;
+                    case '"':
+                        sb.Append('"');
+                        break;
+                    case '\'':
+                        sb.Append("''");
+                        break;
+                    default:
+                        sb.Append(ch);
+                        break;
+                }
+            }
+            return sb.ToString();
+        }
+
+        private void ApplyEmployeeNameFilter()
+        {
+            if (dtEmployees == null) return;
+            var keyword = txtFindName.Text.Trim();
+            if (string.IsNullOrWhiteSpace(keyword))
+            {
+                dtEmployees.DefaultView.RowFilter = string.Empty;
+            }
+            else
+            {
+                // RowFilter is often case-insensitive depending on DataColumn locale; to force case-insensitive we can upper both sides.
+                var escaped = EscapeLikeValue(keyword);
+                // Use CONVERT for safety (if column type changes) and UPPER for case-insensitive compare
+                dtEmployees.DefaultView.RowFilter = string.Format("CONVERT([name], 'System.String') LIKE '%{0}%'", escaped.ToUpper());
+                // When using UPPER on left we would need expression UPPER(CONVERT([name], 'System.String')) LIKE '%XYZ%'
+                // However DataColumn expressions prior to .NET Core don't support UPPER directly everywhere; rely on default collation instead.
+            }
+        }
+    }
+}

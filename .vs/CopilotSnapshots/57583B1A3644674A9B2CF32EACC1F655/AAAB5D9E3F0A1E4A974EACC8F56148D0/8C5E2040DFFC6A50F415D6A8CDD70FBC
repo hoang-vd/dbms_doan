@@ -1,0 +1,286 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.SqlClient;
+
+namespace QuanLyNhanVien
+{
+    public partial class Form1 : Form
+    {
+        // Chuỗi kết nối (cập nhật lại theo môi trường của bạn nếu cần)
+        private readonly string connectionString =
+            @"Data Source=GYEST\\SQLEXPRESS;Initial Catalog=BookstoreDB;Integrated Security=True;TrustServerCertificate=True";
+
+        // State cho Nhân viên
+        private DataTable dtEmployees;
+        private int currentEmployeeId = 0;
+        private bool isEmployeeEditing = false;
+
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            try
+            {
+                LoadRoles();
+                LoadEmployees();
+                SetEmployeeFormState(false);
+                dataGridView1.SelectionChanged += DataGridView1_SelectionChanged;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi tải dữ liệu: " + ex.Message);
+            }
+        }
+
+        #region Employee – Load/Bind/Clear/State
+        private void LoadEmployees()
+        {
+            using (var conn = new SqlConnection(connectionString))
+            using (var da = new SqlDataAdapter(@"SELECT id, name, email, phone, address, birth_date, role_id, hire_date, salary, is_active FROM employees ORDER BY name", conn))
+            {
+                dtEmployees = new DataTable();
+                da.Fill(dtEmployees);
+                dataGridView1.DataSource = dtEmployees;
+
+                if (dataGridView1.Columns.Count > 0)
+                {
+                    dataGridView1.Columns["id"].HeaderText = "ID";
+                    dataGridView1.Columns["name"].HeaderText = "Họ và tên";
+                    dataGridView1.Columns["email"].HeaderText = "Email";
+                    dataGridView1.Columns["phone"].HeaderText = "Điện thoại";
+                    dataGridView1.Columns["address"].HeaderText = "Địa chỉ";
+                    dataGridView1.Columns["birth_date"].HeaderText = "Ngày sinh";
+                    dataGridView1.Columns["role_id"].Visible = false;
+                    dataGridView1.Columns["hire_date"].HeaderText = "Ngày vào làm";
+                    dataGridView1.Columns["salary"].HeaderText = "Lương";
+                    dataGridView1.Columns["is_active"].HeaderText = "Kích hoạt";
+                }
+            }
+        }
+
+        private void LoadRoles()
+        {
+            using (var conn = new SqlConnection(connectionString))
+            using (var cmd = new SqlCommand("SELECT id, name FROM roles ORDER BY name", conn))
+            using (var da = new SqlDataAdapter(cmd))
+            {
+                var dt = new DataTable();
+                da.Fill(dt);
+                cmbRole.DisplayMember = "name";
+                cmbRole.ValueMember = "id";
+                cmbRole.DataSource = dt;
+                cmbRole.SelectedIndex = -1;
+            }
+        }
+
+        private void ClearEmployeeForm()
+        {
+            txtFullName.Clear();
+            txtEmail.Clear();
+            txtPhone.Clear();
+            txtAddress.Clear();
+            dtpBirthDate.Value = DateTime.Today.AddYears(-18);
+            cmbRole.SelectedIndex = -1;
+            dtpHireDate.Value = DateTime.Today;
+            nudSalary.Value = 0;
+            if (chkIsActive != null)
+                chkIsActive.Checked = true;
+        }
+
+        private void SetEmployeeFormState(bool editing)
+        {
+            isEmployeeEditing = editing;
+            groupBox1.Enabled = editing; // khung thông tin
+
+            btnSave.Visible = editing;
+            btnCancel.Visible = editing;
+
+            btnAdd.Enabled = !editing;
+            btnEdit.Enabled = !editing && dataGridView1.SelectedRows.Count > 0;
+            btnDelete.Enabled = !editing && dataGridView1.SelectedRows.Count > 0;
+            btnRefresh.Enabled = !editing;
+        }
+
+        private void DataGridView1_SelectionChanged(object sender, EventArgs e)
+        {
+            if (isEmployeeEditing) return;
+            if (dataGridView1.SelectedRows.Count == 0)
+            {
+                ClearEmployeeForm();
+                return;
+            }
+
+            var row = dataGridView1.SelectedRows[0];
+            currentEmployeeId = Convert.ToInt32(row.Cells["id"].Value);
+            txtFullName.Text = row.Cells["name"].Value.ToString();
+            txtEmail.Text = row.Cells["email"].Value?.ToString();
+            txtPhone.Text = row.Cells["phone"].Value?.ToString();
+            txtAddress.Text = row.Cells["address"].Value?.ToString();
+            var birth = row.Cells["birth_date"].Value as DateTime?; if (birth.HasValue) dtpBirthDate.Value = birth.Value;
+            var hire = row.Cells["hire_date"].Value as DateTime?; if (hire.HasValue) dtpHireDate.Value = hire.Value;
+            if (row.Cells["role_id"].Value != null)
+                cmbRole.SelectedValue = row.Cells["role_id"].Value;
+            decimal sal; if (decimal.TryParse(row.Cells["salary"].Value.ToString(), out sal)) nudSalary.Value = sal <= nudSalary.Maximum ? sal : nudSalary.Maximum;
+            if (chkIsActive != null && row.Cells["is_active"].Value != null)
+                chkIsActive.Checked = Convert.ToBoolean(row.Cells["is_active"].Value);
+        }
+        #endregion
+
+        #region Employee – Button Clicks
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+            currentEmployeeId = 0;
+            ClearEmployeeForm();
+            SetEmployeeFormState(true);
+            txtFullName.Focus();
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count == 0) return;
+            SetEmployeeFormState(true);
+            txtFullName.Focus();
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+            if (dataGridView1.SelectedRows.Count == 0) return;
+            var name = dataGridView1.SelectedRows[0].Cells["name"].Value.ToString();
+            var id = currentEmployeeId;
+
+            var dr = MessageBox.Show($"Xác nhận xóa nhân viên '{name}'?", "Xóa nhân viên", MessageBoxButtons.YesNo, MessageBoxIcon.Warning);
+            if (dr != DialogResult.Yes) return;
+
+            using (var conn = new SqlConnection(connectionString))
+            using (var cmd = new SqlCommand("DELETE FROM employees WHERE id = @id", conn))
+            {
+                cmd.Parameters.AddWithValue("@id", id);
+                conn.Open();
+                var rows = cmd.ExecuteNonQuery();
+                if (rows > 0)
+                    MessageBox.Show("Xóa thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                else
+                    MessageBox.Show("Không tìm thấy nhân viên.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            LoadEmployees();
+            ClearEmployeeForm();
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+            LoadEmployees();
+            LoadRoles();
+            ClearEmployeeForm();
+            SetEmployeeFormState(false);
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+            if (string.IsNullOrWhiteSpace(txtFullName.Text))
+            {
+                MessageBox.Show("Họ và tên không được để trống.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                txtFullName.Focus();
+                return;
+            }
+            if (cmbRole.SelectedIndex < 0)
+            {
+                MessageBox.Show("Vui lòng chọn Chức vụ.", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                cmbRole.Focus();
+                return;
+            }
+
+            using (var conn = new SqlConnection(connectionString))
+            using (var cmd = new SqlCommand())
+            {
+                cmd.Connection = conn;
+                if (currentEmployeeId == 0)
+                {
+                    cmd.CommandText = @"INSERT INTO employees (name, email, phone, address, birth_date, role_id, hire_date, salary, is_active) VALUES (@name, @email, @phone, @address, @birth_date, @role_id, @hire_date, @salary, @is_active)";
+                }
+                else
+                {
+                    cmd.CommandText = @"UPDATE employees SET name=@name, email=@email, phone=@phone, address=@address, birth_date=@birth_date, role_id=@role_id, hire_date=@hire_date, salary=@salary, is_active=@is_active WHERE id=@id";
+                    cmd.Parameters.AddWithValue("@id", currentEmployeeId);
+                }
+
+                cmd.Parameters.AddWithValue("@name", txtFullName.Text.Trim());
+                cmd.Parameters.AddWithValue("@email", (object)txtEmail.Text.Trim() ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@phone", (object)txtPhone.Text.Trim() ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@address", (object)txtAddress.Text.Trim() ?? DBNull.Value);
+                cmd.Parameters.AddWithValue("@birth_date", dtpBirthDate.Value.Date);
+                cmd.Parameters.AddWithValue("@role_id", cmbRole.SelectedValue);
+                cmd.Parameters.AddWithValue("@hire_date", dtpHireDate.Value.Date);
+                cmd.Parameters.AddWithValue("@salary", nudSalary.Value);
+                cmd.Parameters.AddWithValue("@is_active", chkIsActive != null && chkIsActive.Checked);
+
+                conn.Open();
+                var affected = cmd.ExecuteNonQuery();
+                if (affected > 0)
+                {
+                    MessageBox.Show(currentEmployeeId == 0 ? "Thêm nhân viên thành công!" : "Cập nhật nhân viên thành công!", "Thành công", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                }
+                else
+                {
+                    MessageBox.Show("Không lưu được dữ liệu.", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+            }
+
+            LoadEmployees();
+            SetEmployeeFormState(false);
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+            SetEmployeeFormState(false);
+            DataGridView1_SelectionChanged(null, null);
+        }
+        #endregion
+
+        // Giữ lại các handler trống nếu designer đã liên kết (không dùng) ---------
+        private void label8_Click(object sender, EventArgs e) { }
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e) { }
+        private void tabPageEmployee_Click(object sender, EventArgs e) { }
+        private void dgvRoles_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void txtFullName_TextChanged(object sender, EventArgs e) { }
+        private void txtEmail_TextChanged(object sender, EventArgs e) { }
+        private void txtPhone_TextChanged(object sender, EventArgs e) { }
+        private void txtAddress_TextChanged(object sender, EventArgs e) { }
+        private void dtpBirthDate_ValueChanged(object sender, EventArgs e) { }
+        private void cmbRole_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void dtpHireDate_ValueChanged(object sender, EventArgs e) { }
+        private void nudSalary_ValueChanged(object sender, EventArgs e) { }
+        private void tabPageRole_Click(object sender, EventArgs e) { }
+        private void btnAdd2_Click(object sender, EventArgs e) { }
+        private void btnEdit2_Click(object sender, EventArgs e) { }
+        private void btnDelete2_Click(object sender, EventArgs e) { }
+        private void btnRefresh2_Click(object sender, EventArgs e) { }
+        private void txtName_TextChanged(object sender, EventArgs e) { }
+        private void txtDescription_TextChanged(object sender, EventArgs e) { }
+        private void btnSave2_Click(object sender, EventArgs e) { }
+        private void btnCancel2_Click(object sender, EventArgs e) { }
+        private void tabPageShift_Click(object sender, EventArgs e) { }
+        private void dgvShifts_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void dtpDate_ValueChanged(object sender, EventArgs e) { }
+        private void button4_Click(object sender, EventArgs e) { }
+        private void btnEdit3_Click(object sender, EventArgs e) { }
+        private void btnDelete3_Click(object sender, EventArgs e) { }
+        private void btnCoverage_Click(object sender, EventArgs e) { }
+        private void cmbEmployee_SelectedIndexChanged(object sender, EventArgs e) { }
+        private void dtpEnd_ValueChanged(object sender, EventArgs e) { }
+        private void nudBreak_ValueChanged(object sender, EventArgs e) { }
+        private void txtNotes_TextChanged(object sender, EventArgs e) { }
+        private void btnSave3_Click(object sender, EventArgs e) { }
+        private void btnCancel3_Click(object sender, EventArgs e) { }
+    }
+}

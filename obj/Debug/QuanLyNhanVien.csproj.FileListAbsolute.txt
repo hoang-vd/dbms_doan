@@ -1,0 +1,11 @@
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\bin\Debug\QuanLyNhanVien.exe.config
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\bin\Debug\QuanLyNhanVien.exe
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\bin\Debug\QuanLyNhanVien.pdb
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.csproj.AssemblyReference.cache
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.Form1.resources
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.Properties.Resources.resources
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.csproj.GenerateResource.cache
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.csproj.CoreCompileInputs.cache
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.exe
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.pdb
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.exe.config

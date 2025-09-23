@@ -1,0 +1,225 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace QuanLyNhanVien
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label8_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dateTimePicker2_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPageEmployee_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvRoles_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void btnAdd_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnEdit_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDelete_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRefresh_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtFullName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtEmail_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtPhone_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtAddress_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dtpBirthDate_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cmbRole_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dtpHireDate_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudSalary_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnSave_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPageRole_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnAdd2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnEdit2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDelete2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnRefresh2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtName_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtDescription_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnSave2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnCancel2_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void tabPageShift_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dgvShifts_CellContentClick(object sender, DataGridViewCellEventArgs e)
+        {
+
+        }
+
+        private void dtpDate_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnEdit3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnDelete3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnCoverage_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void cmbEmployee_SelectedIndexChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void dtpEnd_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void nudBreak_ValueChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void txtNotes_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnSave3_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void btnCancel3_Click(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
