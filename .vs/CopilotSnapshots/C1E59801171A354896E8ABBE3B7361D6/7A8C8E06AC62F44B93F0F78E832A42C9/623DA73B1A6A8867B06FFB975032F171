@@ -98,8 +98,8 @@ namespace QuanLyNhanVien
                 SetRoleFormState(false);
                 SetShiftFormState(false);
                 ApplySecurity();
-                // Seed default admin account
-                try { UserSeeder.EnsureAdminAccount(connectionString); } catch { }
+                // Seed default users' password hashes if still placeholder
+                try { Security.UserSeeder.SeedDefaultUsers(connectionString); } catch { }
                 // Khởi tạo tab Admin nếu là Admin
                 if (IsAdmin && this.tabControl1.TabPages.Contains(this.tabPageAdmin))
                 {
@@ -1139,7 +1139,7 @@ namespace QuanLyNhanVien
             }
             if (!string.IsNullOrEmpty(passwordInput))
             {
-                PasswordHelper.CreatePasswordHash(passwordInput, out hash, out salt);
+                Security.PasswordHelper.CreatePasswordHash(passwordInput, out hash, out salt);
             }
             try
             {

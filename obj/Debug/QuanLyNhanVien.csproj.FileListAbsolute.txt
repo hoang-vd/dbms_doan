@@ -9,3 +9,4 @@ C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyN
 C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.exe
 C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.pdb
 C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.exe.config
+C:\Users\hoang\source\repos\dbms\quanlynhanvien\QuanLyNhanVien\obj\Debug\QuanLyNhanVien.FormLogin.resources

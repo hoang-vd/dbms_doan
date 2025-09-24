@@ -114,3 +114,45 @@ EXEC sys.sp_addextendedproperty
 
 PRINT N'Tạo bảng (roles, employees, shifts) thành công!';
 GO
+
+-- 4. USERS TABLE (authentication) -------------------------------------------------
+IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='users' AND xtype='U')
+BEGIN
+    CREATE TABLE users (
+        id INT IDENTITY(1,1) PRIMARY KEY,
+        username NVARCHAR(50) NOT NULL UNIQUE,
+        password_hash VARBINARY(64) NOT NULL, -- 32 bytes hash (PBKDF2-SHA256) stored as 64 length varbinary for future-proof
+        password_salt VARBINARY(32) NOT NULL,  -- 16 bytes salt (store 32 for flexibility)
+        role_id INT NOT NULL,                 -- Direct role reference (Admin / Manager ...)
+        employee_id INT NULL,                 -- Optional link to employees table
+        is_active BIT DEFAULT 1,
+        last_login DATETIME NULL,
+        created_at DATETIME DEFAULT GETDATE(),
+        updated_at DATETIME DEFAULT GETDATE(),
+        CONSTRAINT FK_users_role_id FOREIGN KEY (role_id) REFERENCES roles(id),
+        CONSTRAINT FK_users_employee_id FOREIGN KEY (employee_id) REFERENCES employees(id)
+    );
+END
+GO
+
+-- Indexes for users
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_users_role_id' AND object_id = OBJECT_ID('dbo.users'))
+    CREATE NONCLUSTERED INDEX IX_users_role_id ON users(role_id);
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name = 'IX_users_employee_id' AND object_id = OBJECT_ID('dbo.users'))
+    CREATE NONCLUSTERED INDEX IX_users_employee_id ON users(employee_id);
+GO
+
+-- Seed initial admin / manager accounts only if table empty (password placeholders to be updated by application seeding)
+IF NOT EXISTS (SELECT 1 FROM users)
+BEGIN
+    DECLARE @adminRoleId INT = (SELECT TOP 1 id FROM roles WHERE name = 'Admin');
+    DECLARE @managerRoleId INT = (SELECT TOP 1 id FROM roles WHERE name = 'Manager');
+    -- Placeholders: 0x00.. will be replaced by hashing utility at runtime if detected
+    INSERT INTO users (username, password_hash, password_salt, role_id, employee_id)
+    VALUES ('admin', 0x00, 0x00, @adminRoleId, NULL),
+           ('manager', 0x00, 0x00, @managerRoleId, NULL);
+END
+GO
+
+PRINT N'Tạo bảng users thành công (nếu chưa tồn tại)!';
+GO

@@ -1,0 +1,241 @@
+﻿using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows.Forms;
+using System.Collections; // Added for StructuralComparisons
+
+
+namespace QuanLyNhanVien
+{
+    // FormLogin class moved here later; keep namespace open until end of file.
+
+    // Model lưu thông tin đăng nhập
+    public class UserSession
+    {
+        public int UserId { get; set; }
+        public string Username { get; set; }
+        public int RoleId { get; set; }
+        public string RoleName { get; set; }
+        public int? EmployeeId { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsAdmin => RoleName == "Admin";
+        public bool IsManager => RoleName == "Manager";
+    }
+
+    // Helper băm và kiểm tra mật khẩu
+    public static class PasswordHelper
+    {
+        public static void CreatePasswordHash(string password, out byte[] hash, out byte[] salt)
+        {
+            using (var rng = new System.Security.Cryptography.RNGCryptoServiceProvider())
+            {
+                salt = new byte[16];
+                rng.GetBytes(salt);
+            }
+            using (var pbkdf2 = new System.Security.Cryptography.Rfc2898DeriveBytes(password, salt, 100000, System.Security.Cryptography.HashAlgorithmName.SHA256))
+            {
+                hash = pbkdf2.GetBytes(32);
+            }
+        }
+        public static bool VerifyPassword(string password, byte[] hash, byte[] salt)
+        {
+            using (var pbkdf2 = new System.Security.Cryptography.Rfc2898DeriveBytes(password, salt, 100000, System.Security.Cryptography.HashAlgorithmName.SHA256))
+            {
+                var testHash = pbkdf2.GetBytes(32);
+                return StructuralComparisons.StructuralEqualityComparer.Equals(testHash, hash);
+            }
+        }
+    }
+
+    // Seeder đảm bảo tài khoản admin/admin0101
+    public static class UserSeeder
+    {
+        public static void EnsureAdminAccount(string connectionString)
+        {
+            try
+            {
+                using (var conn = new SqlConnection(connectionString))
+                {
+                    conn.Open();
+                    // Đảm bảo role Admin tồn tại
+                    int adminRoleId;
+                    using (var cmdRole = new SqlCommand(@"IF NOT EXISTS(SELECT 1 FROM roles WHERE name = 'Admin')
+                                                        BEGIN
+                                                            INSERT INTO roles(name, description, created_at) VALUES('Admin','Quản trị hệ thống',GETDATE());
+                                                        END
+                                                        SELECT id FROM roles WHERE name='Admin';", conn))
+                    {
+                        adminRoleId = (int)cmdRole.ExecuteScalar();
+                    }
+                    // Kiểm tra user admin
+                    int? adminUserId = null;
+                    byte[] existingHash = null; byte[] existingSalt = null;
+                    using (var cmdFind = new SqlCommand("SELECT TOP 1 id, password_hash, password_salt FROM users WHERE username='admin'", conn))
+                    using (var reader = cmdFind.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            adminUserId = (int)reader["id"];
+                            existingHash = reader["password_hash"] as byte[];
+                            existingSalt = reader["password_salt"] as byte[];
+                        }
+                    }
+                    string desiredPassword = "admin0101";
+                    if (adminUserId == null)
+                    {
+                        PasswordHelper.CreatePasswordHash(desiredPassword, out var hash, out var salt);
+                        using (var cmdIns = new SqlCommand(@"INSERT INTO users(username,password_hash,password_salt,role_id,is_active,created_at)
+                                                         VALUES(@u,@h,@s,@r,1,GETDATE());", conn))
+                        {
+                            cmdIns.Parameters.AddWithValue("@u", "admin");
+                            cmdIns.Parameters.AddWithValue("@h", hash);
+                            cmdIns.Parameters.AddWithValue("@s", salt);
+                            cmdIns.Parameters.AddWithValue("@r", adminRoleId);
+                            cmdIns.ExecuteNonQuery();
+                        }
+                    }
+                    else
+                    {
+                        bool needReset = true;
+                        if (existingHash != null && existingSalt != null)
+                        {
+                            try
+                            {
+                                if (PasswordHelper.VerifyPassword(desiredPassword, existingHash, existingSalt))
+                                    needReset = false;
+                            }
+                            catch { }
+                        }
+                        if (needReset)
+                        {
+                            PasswordHelper.CreatePasswordHash(desiredPassword, out var newHash, out var newSalt);
+                            using (var cmdUpd = new SqlCommand("UPDATE users SET password_hash=@h,password_salt=@s, role_id=@r, is_active=1 WHERE id=@id", conn))
+                            {
+                                cmdUpd.Parameters.AddWithValue("@h", newHash);
+                                cmdUpd.Parameters.AddWithValue("@s", newSalt);
+                                cmdUpd.Parameters.AddWithValue("@r", adminRoleId);
+                                cmdUpd.Parameters.AddWithValue("@id", adminUserId.Value);
+                                cmdUpd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                }
+            }
+            catch { }
+        }
+    }
+
+    // Form đăng nhập (moved out of UserSeeder to avoid nesting issues with partial class)
+    public partial class FormLogin : Form
+    {
+        private readonly string _connectionString = @"Server=GYEST\SQLEXPRESS;Database=BookstoreDB;Trusted_Connection=True;TrustServerCertificate=True;"; // single backslash instance name
+
+        public UserSession Session { get; private set; }
+
+        public FormLogin()
+        {
+            // Đảm bảo luôn có tài khoản admin/admin0101 trước khi hiển thị form
+            try { UserSeeder.EnsureAdminAccount(_connectionString); } catch { }
+            InitializeComponent();
+        }
+
+        private void btnLogin_Click(object sender, EventArgs e)
+        {
+            AttemptLogin();
+        }
+
+        private void txtPassword_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Enter)
+            {
+                AttemptLogin();
+            }
+        }
+
+        private void AttemptLogin()
+        {
+            var username = txtUsername.Text.Trim();
+            var password = txtPassword.Text; // allow spaces inside password
+
+            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
+            {
+                MessageBox.Show("Vui lòng nhập tên đăng nhập và mật khẩu", "Thiếu thông tin", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                return;
+            }
+
+            try
+            {
+                using (var conn = new SqlConnection(_connectionString))
+                {
+                    conn.Open();
+                    // Grab user, role and password components
+                    string sql = @"SELECT TOP 1 u.id, u.username, u.password_hash, u.password_salt, u.role_id, u.employee_id, u.is_active, r.name role_name
+                                     FROM users u
+                                     JOIN roles r ON r.id = u.role_id
+                                     WHERE u.username = @username";
+                    using (var cmd = new SqlCommand(sql, conn))
+                    {
+                        cmd.Parameters.AddWithValue("@username", username);
+                        using (var reader = cmd.ExecuteReader())
+                        {
+                            if (!reader.Read())
+                            {
+                                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu", "Đăng nhập thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            if (!reader.GetBoolean(reader.GetOrdinal("is_active")))
+                            {
+                                MessageBox.Show("Tài khoản đã bị khóa", "Không thể đăng nhập", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            byte[] hash = (byte[])reader["password_hash"];
+                            byte[] salt = (byte[])reader["password_salt"];
+
+                            if (!PasswordHelper.VerifyPassword(password, hash, salt))
+                            {
+                                MessageBox.Show("Sai tên đăng nhập hoặc mật khẩu", "Đăng nhập thất bại", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+
+                            Session = new UserSession
+                            {
+                                UserId = (int)reader["id"],
+                                Username = reader["username"].ToString(),
+                                RoleId = (int)reader["role_id"],
+                                RoleName = reader["role_name"].ToString(),
+                                EmployeeId = reader["employee_id"] == DBNull.Value ? (int?)null : (int)reader["employee_id"],
+                                IsActive = true
+                            };
+                        }
+                    }
+
+                    // Update last_login
+                    if (Session != null)
+                    {
+                        using (var update = new SqlCommand("UPDATE users SET last_login = GETDATE() WHERE id = @id", conn))
+                        {
+                            update.Parameters.AddWithValue("@id", Session.UserId);
+                            update.ExecuteNonQuery();
+                        }
+                    }
+                }
+
+                if (Session != null)
+                {
+                    DialogResult = DialogResult.OK;
+                    Close();
+                }
+            }
+            catch (SqlException ex)
+            {
+                MessageBox.Show($"Lỗi SQL: {ex.Number} - {ex.Message}", "Lỗi cơ sở dữ liệu", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
+    }
+}

@@ -92,6 +92,23 @@
             this.btnDelete3 = new System.Windows.Forms.Button();
             this.btnEdit3 = new System.Windows.Forms.Button();
             this.button4 = new System.Windows.Forms.Button();
+            this.tabPageAdmin = new System.Windows.Forms.TabPage();
+            this.btnRefresh4 = new System.Windows.Forms.Button();
+            this.btnDelete4 = new System.Windows.Forms.Button();
+            this.btnEdit4 = new System.Windows.Forms.Button();
+            this.btnAdd4 = new System.Windows.Forms.Button();
+            this.dataGridViewAdmin = new System.Windows.Forms.DataGridView();
+            this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.btnCancel4 = new System.Windows.Forms.Button();
+            this.btnSave4 = new System.Windows.Forms.Button();
+            this.cmbEmployeeId = new System.Windows.Forms.ComboBox();
+            this.cmbRole4 = new System.Windows.Forms.ComboBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.txtUsername = new System.Windows.Forms.TextBox();
+            this.txtPassword = new System.Windows.Forms.TextBox();
             this.tabControl1.SuspendLayout();
             this.tabPageEmployee.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -105,6 +122,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOverTime)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBreak)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvShifts)).BeginInit();
+            this.tabPageAdmin.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmin)).BeginInit();
+            this.groupBox4.SuspendLayout();
             this.SuspendLayout();
             // 
             // tabControl1
@@ -112,6 +132,7 @@
             this.tabControl1.Controls.Add(this.tabPageEmployee);
             this.tabControl1.Controls.Add(this.tabPageRole);
             this.tabControl1.Controls.Add(this.tabPageShift);
+            this.tabControl1.Controls.Add(this.tabPageAdmin);
             this.tabControl1.Location = new System.Drawing.Point(12, 12);
             this.tabControl1.Name = "tabControl1";
             this.tabControl1.SelectedIndex = 0;
@@ -803,6 +824,180 @@
             this.button4.UseVisualStyleBackColor = false;
             this.button4.Click += new System.EventHandler(this.button4_Click);
             // 
+            // tabPageAdmin
+            // 
+            this.tabPageAdmin.Controls.Add(this.btnCancel4);
+            this.tabPageAdmin.Controls.Add(this.btnSave4);
+            this.tabPageAdmin.Controls.Add(this.groupBox4);
+            this.tabPageAdmin.Controls.Add(this.dataGridViewAdmin);
+            this.tabPageAdmin.Controls.Add(this.btnRefresh4);
+            this.tabPageAdmin.Controls.Add(this.btnDelete4);
+            this.tabPageAdmin.Controls.Add(this.btnEdit4);
+            this.tabPageAdmin.Controls.Add(this.btnAdd4);
+            this.tabPageAdmin.Location = new System.Drawing.Point(4, 25);
+            this.tabPageAdmin.Name = "tabPageAdmin";
+            this.tabPageAdmin.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageAdmin.Size = new System.Drawing.Size(1590, 710);
+            this.tabPageAdmin.TabIndex = 3;
+            this.tabPageAdmin.Text = "Admin";
+            this.tabPageAdmin.UseVisualStyleBackColor = true;
+            // 
+            // btnRefresh4
+            // 
+            this.btnRefresh4.BackColor = System.Drawing.Color.LightYellow;
+            this.btnRefresh4.Location = new System.Drawing.Point(455, 21);
+            this.btnRefresh4.Name = "btnRefresh4";
+            this.btnRefresh4.Size = new System.Drawing.Size(85, 35);
+            this.btnRefresh4.TabIndex = 13;
+            this.btnRefresh4.Text = "Refresh";
+            this.btnRefresh4.UseVisualStyleBackColor = false;
+            // 
+            // btnDelete4
+            // 
+            this.btnDelete4.BackColor = System.Drawing.Color.Tomato;
+            this.btnDelete4.Location = new System.Drawing.Point(313, 21);
+            this.btnDelete4.Name = "btnDelete4";
+            this.btnDelete4.Size = new System.Drawing.Size(85, 35);
+            this.btnDelete4.TabIndex = 12;
+            this.btnDelete4.Text = "Xoá";
+            this.btnDelete4.UseVisualStyleBackColor = false;
+            // 
+            // btnEdit4
+            // 
+            this.btnEdit4.BackColor = System.Drawing.Color.Gold;
+            this.btnEdit4.Location = new System.Drawing.Point(176, 21);
+            this.btnEdit4.Name = "btnEdit4";
+            this.btnEdit4.Size = new System.Drawing.Size(85, 35);
+            this.btnEdit4.TabIndex = 11;
+            this.btnEdit4.Text = "Sửa";
+            this.btnEdit4.UseVisualStyleBackColor = false;
+            // 
+            // btnAdd4
+            // 
+            this.btnAdd4.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.btnAdd4.Location = new System.Drawing.Point(52, 21);
+            this.btnAdd4.Name = "btnAdd4";
+            this.btnAdd4.Size = new System.Drawing.Size(85, 35);
+            this.btnAdd4.TabIndex = 10;
+            this.btnAdd4.Text = "Thêm";
+            this.btnAdd4.UseVisualStyleBackColor = false;
+            // 
+            // dataGridViewAdmin
+            // 
+            this.dataGridViewAdmin.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+            this.dataGridViewAdmin.BackgroundColor = System.Drawing.SystemColors.HighlightText;
+            this.dataGridViewAdmin.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridViewAdmin.Location = new System.Drawing.Point(29, 62);
+            this.dataGridViewAdmin.Name = "dataGridViewAdmin";
+            this.dataGridViewAdmin.RowHeadersWidth = 51;
+            this.dataGridViewAdmin.RowTemplate.Height = 24;
+            this.dataGridViewAdmin.Size = new System.Drawing.Size(1081, 629);
+            this.dataGridViewAdmin.TabIndex = 14;
+            this.dataGridViewAdmin.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridViewAdmin_CellContentClick);
+            // 
+            // groupBox4
+            // 
+            this.groupBox4.Controls.Add(this.txtPassword);
+            this.groupBox4.Controls.Add(this.txtUsername);
+            this.groupBox4.Controls.Add(this.label21);
+            this.groupBox4.Controls.Add(this.label20);
+            this.groupBox4.Controls.Add(this.label19);
+            this.groupBox4.Controls.Add(this.label18);
+            this.groupBox4.Controls.Add(this.cmbRole4);
+            this.groupBox4.Controls.Add(this.cmbEmployeeId);
+            this.groupBox4.Location = new System.Drawing.Point(1146, 75);
+            this.groupBox4.Name = "groupBox4";
+            this.groupBox4.Size = new System.Drawing.Size(413, 480);
+            this.groupBox4.TabIndex = 15;
+            this.groupBox4.TabStop = false;
+            this.groupBox4.Text = "Phân quyền";
+            // 
+            // btnCancel4
+            // 
+            this.btnCancel4.BackColor = System.Drawing.Color.LightCoral;
+            this.btnCancel4.Location = new System.Drawing.Point(1392, 596);
+            this.btnCancel4.Name = "btnCancel4";
+            this.btnCancel4.Size = new System.Drawing.Size(91, 40);
+            this.btnCancel4.TabIndex = 16;
+            this.btnCancel4.Text = "Huỷ";
+            this.btnCancel4.UseVisualStyleBackColor = false;
+            // 
+            // btnSave4
+            // 
+            this.btnSave4.BackColor = System.Drawing.Color.LimeGreen;
+            this.btnSave4.Location = new System.Drawing.Point(1251, 596);
+            this.btnSave4.Name = "btnSave4";
+            this.btnSave4.Size = new System.Drawing.Size(99, 40);
+            this.btnSave4.TabIndex = 17;
+            this.btnSave4.Text = "Lưu";
+            this.btnSave4.UseVisualStyleBackColor = false;
+            // 
+            // cmbEmployeeId
+            // 
+            this.cmbEmployeeId.FormattingEnabled = true;
+            this.cmbEmployeeId.Location = new System.Drawing.Point(124, 42);
+            this.cmbEmployeeId.Name = "cmbEmployeeId";
+            this.cmbEmployeeId.Size = new System.Drawing.Size(283, 24);
+            this.cmbEmployeeId.TabIndex = 0;
+            // 
+            // cmbRole4
+            // 
+            this.cmbRole4.FormattingEnabled = true;
+            this.cmbRole4.Location = new System.Drawing.Point(124, 96);
+            this.cmbRole4.Name = "cmbRole4";
+            this.cmbRole4.Size = new System.Drawing.Size(283, 24);
+            this.cmbRole4.TabIndex = 1;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.Location = new System.Drawing.Point(15, 45);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(47, 16);
+            this.label18.TabIndex = 2;
+            this.label18.Text = "Mã số:";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(15, 99);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(48, 16);
+            this.label19.TabIndex = 2;
+            this.label19.Text = "Vai trò:";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(15, 160);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(73, 16);
+            this.label20.TabIndex = 3;
+            this.label20.Text = "Username:";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(15, 217);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(70, 16);
+            this.label21.TabIndex = 4;
+            this.label21.Text = "Password:";
+            // 
+            // txtUsername
+            // 
+            this.txtUsername.Location = new System.Drawing.Point(124, 160);
+            this.txtUsername.Name = "txtUsername";
+            this.txtUsername.Size = new System.Drawing.Size(283, 22);
+            this.txtUsername.TabIndex = 5;
+            // 
+            // txtPassword
+            // 
+            this.txtPassword.Location = new System.Drawing.Point(124, 214);
+            this.txtPassword.Name = "txtPassword";
+            this.txtPassword.Size = new System.Drawing.Size(283, 22);
+            this.txtPassword.TabIndex = 5;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -829,6 +1024,10 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOverTime)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBreak)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvShifts)).EndInit();
+            this.tabPageAdmin.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdmin)).EndInit();
+            this.groupBox4.ResumeLayout(false);
+            this.groupBox4.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -899,6 +1098,23 @@
         private System.Windows.Forms.NumericUpDown nudOverTime;
         private System.Windows.Forms.Label label17;
         private System.Windows.Forms.CheckBox chboxActive;
+        private System.Windows.Forms.TabPage tabPageAdmin;
+        private System.Windows.Forms.Button btnRefresh4;
+        private System.Windows.Forms.Button btnDelete4;
+        private System.Windows.Forms.Button btnEdit4;
+        private System.Windows.Forms.Button btnAdd4;
+        private System.Windows.Forms.Button btnCancel4;
+        private System.Windows.Forms.Button btnSave4;
+        private System.Windows.Forms.GroupBox groupBox4;
+        private System.Windows.Forms.DataGridView dataGridViewAdmin;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label18;
+    private System.Windows.Forms.ComboBox cmbRole4;
+    private System.Windows.Forms.ComboBox cmbEmployeeId;
+        private System.Windows.Forms.TextBox txtPassword;
+        private System.Windows.Forms.TextBox txtUsername;
     }
 }
 

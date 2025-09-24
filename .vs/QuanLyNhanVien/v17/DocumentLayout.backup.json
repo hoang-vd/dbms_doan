@@ -3,16 +3,44 @@
   "WorkspaceRootPath": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\userseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:userseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\passwordhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:passwordhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\usersession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:usersession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\formlogin.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:formlogin.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.designer.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -22,7 +50,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 4,
+          "SelectedChildIndex": 3,
           "Children": [
             {
               "$type": "Bookmark",
@@ -38,33 +66,110 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "Form1.Designer.cs",
-              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.Designer.cs",
-              "RelativeDocumentMoniker": "Form1.Designer.cs",
-              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.Designer.cs",
-              "RelativeToolTip": "Form1.Designer.cs",
-              "ViewState": "AgIAAGsDAAAAAAAAAAAAAAoDAAAaAAAAAAAAAA==",
+              "DocumentIndex": 0,
+              "Title": "UserSeeder.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSeeder.cs",
+              "RelativeDocumentMoniker": "UserSeeder.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSeeder.cs",
+              "RelativeToolTip": "UserSeeder.cs",
+              "ViewState": "AgIAABYAAAAAAAAAAAAQwCQAAAA5AAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-22T16:31:29.693Z",
+              "WhenOpened": "2025-09-24T06:47:59.545Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 1,
+              "Title": "Program.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAA4AAAAAAAAAAAAAwAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T06:47:55.695Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "PasswordHelper.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\PasswordHelper.cs",
+              "RelativeDocumentMoniker": "PasswordHelper.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\PasswordHelper.cs",
+              "RelativeToolTip": "PasswordHelper.cs",
+              "ViewState": "AgIAAAcAAAAAAAAAAAAzwBAAAAArAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T06:47:41.99Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 6,
+              "Title": "FormLogin.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.Designer.cs",
+              "RelativeDocumentMoniker": "FormLogin.Designer.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.Designer.cs",
+              "RelativeToolTip": "FormLogin.Designer.cs",
+              "ViewState": "AgIAAEUAAAAAAAAAAAAYwFMAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T03:24:28.574Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "FormLogin.cs [Design]",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs",
+              "RelativeDocumentMoniker": "FormLogin.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs [Design]",
+              "RelativeToolTip": "FormLogin.cs [Design]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T03:24:15.601Z",
+              "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 9,
               "Title": "Form1.cs",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
               "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.cs",
               "RelativeToolTip": "Form1.cs",
-              "ViewState": "AgIAAK4BAAAAAAAAAAAIwLgBAAAkAAAAAAAAAA==",
+              "ViewState": "AgIAACEEAAAAAAAAAAAowCcAAAAEAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-22T14:15:07.415Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 3,
+              "Title": "UserSession.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSession.cs",
+              "RelativeDocumentMoniker": "UserSession.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSession.cs",
+              "RelativeToolTip": "UserSession.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T06:30:17.29Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 7,
+              "Title": "FormLogin.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs",
+              "RelativeDocumentMoniker": "FormLogin.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs",
+              "RelativeToolTip": "FormLogin.cs",
+              "ViewState": "AgIAAGQAAAAAAAAAAAAAAFQAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-24T06:12:56.858Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
               "Title": "Form1.cs [Design]",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
@@ -73,6 +178,19 @@
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-22T12:04:42.946Z",
               "EditorCaption": " [Design]"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Form1.Designer.cs",
+              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.Designer.cs",
+              "RelativeDocumentMoniker": "Form1.Designer.cs",
+              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.Designer.cs",
+              "RelativeToolTip": "Form1.Designer.cs",
+              "ViewState": "AgIAAFwAAAAAAAAAAAAowGcAAABFAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-09-22T16:31:29.693Z",
+              "EditorCaption": ""
             }
           ]
         },
