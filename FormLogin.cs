@@ -8,8 +8,12 @@ namespace QuanLyNhanVien
     public partial class FormLogin : Form
     {
         private readonly string _connectionString = @"Server=GYEST\SQLEXPRESS;Database=BookstoreDB;Trusted_Connection=True;TrustServerCertificate=True;";
+        // SQL Login based connection strings (created by grant.sql script)
+        private readonly string _adminSqlLoginCnn = @"Server=GYEST\SQLEXPRESS;Database=BookstoreDB;User Id=admin_login;Password=AdminLogin@123;TrustServerCertificate=True;";
+        private readonly string _managerSqlLoginCnn = @"Server=GYEST\SQLEXPRESS;Database=BookstoreDB;User Id=manager_login;Password=ManagerLogin@123;TrustServerCertificate=True;";
 
         public UserSession Session { get; private set; }
+        public string EffectiveConnectionString { get; private set; } // Connection string to use for Form1 (DB enforced security)
 
         public FormLogin()
         {
@@ -83,15 +87,40 @@ namespace QuanLyNhanVien
                     }
                     if (Session != null)
                     {
-                        using (var update = new SqlCommand("UPDATE users SET last_login = GETDATE() WHERE id = @id", conn))
+                        using (var update = new SqlCommand("sp_UpdateLastLogin", conn))
                         {
-                            update.Parameters.AddWithValue("@id", Session.UserId);
+                            update.CommandType = System.Data.CommandType.StoredProcedure;
+                            update.Parameters.AddWithValue("@username", Session.Username);
                             update.ExecuteNonQuery();
                         }
                     }
                 }
+
                 if (Session != null)
                 {
+                    // Choose connection string based on role (DB GRANT enforcement)
+                    EffectiveConnectionString = Session.IsAdmin ? _adminSqlLoginCnn : _managerSqlLoginCnn;
+                    // Test secondary connection to ensure GRANT script executed
+                    try
+                    {
+                        using (var roleConn = new SqlConnection(EffectiveConnectionString))
+                        {
+                            roleConn.Open();
+                            // simple sanity check: try execute a common proc
+                            using (var testCmd = new SqlCommand(Session.IsAdmin ? "sp_GetEmployees" : "sp_GetEmployees", roleConn))
+                            {
+                                testCmd.CommandType = System.Data.CommandType.StoredProcedure;
+                                testCmd.ExecuteNonQuery();
+                            }
+                        }
+                    }
+                    catch (SqlException ex)
+                    {
+                        MessageBox.Show("Kết nối bằng SQL login theo vai trò thất bại. Hãy chạy script grant.sql trước.\nChi tiết: " + ex.Message, "Lỗi phân quyền DB", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        Session = null;
+                        return;
+                    }
+
                     DialogResult = DialogResult.OK;
                     Close();
                 }

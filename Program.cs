@@ -19,21 +19,19 @@ namespace QuanLyNhanVien
             Application.SetCompatibleTextRenderingDefault(false);
             // Seeding admin account handled inside FormLogin constructor
             UserSession session = null;
+            string roleConn = null;
             using (var login = new FormLogin())
             {
                 if (login.ShowDialog() == DialogResult.OK)
                 {
                     session = login.Session;
+                    roleConn = login.EffectiveConnectionString; // new: connection with GRANT-based security
                 }
             }
 
-            if (session == null)
-            {
-                // User cancelled login
-                return;
-            }
+            if (session == null || string.IsNullOrEmpty(roleConn)) return;
 
-            Application.Run(new Form1(session));
+            Application.Run(new Form1(session, roleConn));
         }
     }
 }

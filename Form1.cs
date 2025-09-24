@@ -12,8 +12,7 @@ namespace QuanLyNhanVien
 {
     public partial class Form1 : Form
     {
-        private readonly string connectionString =
-            @"Data Source=GYEST\SQLEXPRESS;Initial Catalog=BookstoreDB;Integrated Security=True;TrustServerCertificate=True";
+        private readonly string connectionString; // was hardcoded before, now injected
 
         // State
         private DataTable dtEmployees;
@@ -39,9 +38,10 @@ namespace QuanLyNhanVien
 
     private readonly UserSession _session; // current logged in user
 
-        public Form1(UserSession session)
+        public Form1(UserSession session, string roleConnectionString)
         {
             _session = session;
+            connectionString = roleConnectionString; // assign role-based connection
             InitializeComponent();
             // Gắn sự kiện Selecting để chặn truy cập tab vai trò nếu không phải Admin
             this.tabControl1.Selecting += TabControl1_Selecting;
@@ -1236,43 +1236,29 @@ namespace QuanLyNhanVien
         private void nudBreak_ValueChanged(object sender, EventArgs e) { }
         private void txtNotes_TextChanged(object sender, EventArgs e) { }
         private void cmbEmployeeId_SelectedIndexChanged(object sender, EventArgs e) { }
-
+        private void dataGridViewEmployees_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
+        private void groupBox1_Enter(object sender, EventArgs e) { }
+        private void txtFindName_TextChanged(object sender, EventArgs e) { ApplyEmployeeNameFilter(); }
+        private void dataGridViewAdmin_CellContentClick(object sender, DataGridViewCellEventArgs e) { }
         #endregion
-
-        private void dataGridViewEmployees_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
-        }
-
-        private void groupBox1_Enter(object sender, EventArgs e)
-        {
-
-        }
-
-        private void txtFindName_TextChanged(object sender, EventArgs e)
-        {
-            // Live filter as user types
-            ApplyEmployeeNameFilter();
-        }
 
         private string EscapeLikeValue(string value)
         {
             if (string.IsNullOrEmpty(value)) return string.Empty;
-            // Escape apostrophe and LIKE wildcards %, _, [, ]
             var sb = new StringBuilder();
             foreach (var ch in value)
             {
                 switch (ch)
                 {
                     case '%':
-                    case '*': // treat * as wildcard user might type
+                    case '*':
                     case '_':
                     case '[':
                     case ']':
                         sb.Append('[').Append(ch).Append(']');
                         break;
-                    case '"':
-                        sb.Append('"');
+                    case '\"':
+                        sb.Append('\"');
                         break;
                     case '\'':
                         sb.Append("''");
@@ -1295,18 +1281,9 @@ namespace QuanLyNhanVien
             }
             else
             {
-                // RowFilter is often case-insensitive depending on DataColumn locale; to force case-insensitive we can upper both sides.
                 var escaped = EscapeLikeValue(keyword);
-                // Use CONVERT for safety (if column type changes) and UPPER for case-insensitive compare
                 dtEmployees.DefaultView.RowFilter = string.Format("CONVERT([name], 'System.String') LIKE '%{0}%'", escaped.ToUpper());
-                // When using UPPER on left we would need expression UPPER(CONVERT([name], 'System.String')) LIKE '%XYZ%'
-                // However DataColumn expressions prior to .NET Core don't support UPPER directly everywhere; rely on default collation instead.
             }
-        }
-
-        private void dataGridViewAdmin_CellContentClick(object sender, DataGridViewCellEventArgs e)
-        {
-
         }
     }
 }
