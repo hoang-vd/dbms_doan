@@ -105,5 +105,10 @@ namespace QuanLyNhanVien
                 MessageBox.Show($"Lỗi: {ex.Message}", "Lỗi", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        private void btnCancel_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

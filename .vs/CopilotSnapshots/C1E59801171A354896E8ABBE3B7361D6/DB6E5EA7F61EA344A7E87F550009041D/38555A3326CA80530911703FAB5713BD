@@ -154,10 +154,10 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetRoles", conn))
+                using (var cmd = new SqlCommand("SELECT id, name FROM roles WHERE name <> @adminName ORDER BY name", conn))
                 using (var da = new SqlDataAdapter(cmd))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.Parameters.AddWithValue("@adminName", "Admin");
                     var dt = new DataTable();
                     da.Fill(dt);
                     cmbRole.DisplayMember = "name";
@@ -174,10 +174,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetRolesForGrid", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter("SELECT id, name, description, created_at FROM roles ORDER BY name", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     dtRoles = new DataTable();
                     da.Fill(dtRoles);
                     dgvRoles.DataSource = dtRoles;
@@ -198,10 +196,10 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetEmployees", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter(@"SELECT e.id, e.name, e.email, e.phone, e.address, e.birth_date, e.role_id, r.name AS role_name, e.hire_date, e.salary, e.is_active
+                                                      FROM employees e INNER JOIN roles r ON e.role_id = r.id
+                                                      ORDER BY e.name", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     dtEmployees = new DataTable();
                     da.Fill(dtEmployees);
                     dataGridViewEmployees.DataSource = dtEmployees;
@@ -420,9 +418,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_DeleteEmployee", conn))
+                using (var cmd = new SqlCommand("DELETE FROM employees WHERE id = @id", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@id", id);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
@@ -474,20 +471,19 @@ namespace QuanLyNhanVien
                     cmd.Connection = conn;
                     if (currentEmployeeId == 0)
                     {
-                        cmd.CommandText = "sp_InsertEmployee";
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = @"INSERT INTO employees (name, email, phone, address, birth_date, role_id, hire_date, salary, is_active) 
+                                            VALUES (@name, @email, @phone, @address, @birth_date, @role_id, @hire_date, @salary, @is_active)";
                     }
                     else
                     {
-                        cmd.CommandText = "sp_UpdateEmployee";
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = @"UPDATE employees SET name=@name, email=@email, phone=@phone, address=@address, birth_date=@birth_date, role_id=@role_id, hire_date=@hire_date, salary=@salary, is_active=@is_active WHERE id=@id";
                         cmd.Parameters.AddWithValue("@id", currentEmployeeId);
                     }
 
                     cmd.Parameters.AddWithValue("@name", txtFullName.Text.Trim());
-                    cmd.Parameters.AddWithValue("@email", string.IsNullOrWhiteSpace(txtEmail.Text) ? (object)DBNull.Value : txtEmail.Text.Trim());
-                    cmd.Parameters.AddWithValue("@phone", string.IsNullOrWhiteSpace(txtPhone.Text) ? (object)DBNull.Value : txtPhone.Text.Trim());
-                    cmd.Parameters.AddWithValue("@address", string.IsNullOrWhiteSpace(txtAddress.Text) ? (object)DBNull.Value : txtAddress.Text.Trim());
+                    cmd.Parameters.AddWithValue("@email", (object)txtEmail.Text.Trim() ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@phone", (object)txtPhone.Text.Trim() ?? DBNull.Value);
+                    cmd.Parameters.AddWithValue("@address", (object)txtAddress.Text.Trim() ?? DBNull.Value);
                     cmd.Parameters.AddWithValue("@birth_date", dtpBirthDate.Value.Date);
                     cmd.Parameters.AddWithValue("@role_id", cmbRole.SelectedValue);
                     cmd.Parameters.AddWithValue("@hire_date", dtpHireDate.Value.Date);
@@ -563,9 +559,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_DeleteRole", conn))
+                using (var cmd = new SqlCommand("DELETE FROM roles WHERE id=@id", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@id", id);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
@@ -616,14 +611,10 @@ namespace QuanLyNhanVien
                 {
                     cmd.Connection = conn;
                     if (currentRoleId == 0)
-                    {
-                        cmd.CommandText = "sp_InsertRole";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                    }
+                        cmd.CommandText = "INSERT INTO roles (name, description) VALUES (@name, @description)";
                     else
                     {
-                        cmd.CommandText = "sp_UpdateRole";
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "UPDATE roles SET name=@name, description=@description WHERE id=@id";
                         cmd.Parameters.AddWithValue("@id", currentRoleId);
                     }
                     cmd.Parameters.AddWithValue("@name", txtName.Text.Trim());
@@ -659,10 +650,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetEmployeesForShift", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter("SELECT id, name FROM employees ORDER BY name", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     var dt = new DataTable();
                     da.Fill(dt);
                     cmbEmployee.DisplayMember = "name";
@@ -680,11 +669,13 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetShiftsByDate", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter(@"SELECT s.id, s.employee_id, e.name AS employee_name, r.name AS role_name, s.shift_date, s.start_time, s.end_time, s.break_duration, s.overtime_hours, s.status, s.notes
+                                                     FROM shifts s 
+                                                     INNER JOIN employees e ON s.employee_id = e.id
+                                                     INNER JOIN roles r ON e.role_id = r.id
+                                                     WHERE s.shift_date = @d ORDER BY s.start_time", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
-                    cmd.Parameters.AddWithValue("@shift_date", date);
+                    da.SelectCommand.Parameters.AddWithValue("@d", date);
                     dtShifts = new DataTable();
                     da.Fill(dtShifts);
                     dgvShifts.DataSource = dtShifts;
@@ -714,10 +705,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetUserRoles", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter("SELECT id, name FROM roles ORDER BY name", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     var dt = new DataTable();
                     da.Fill(dt);
                     cmbRole4.DisplayMember = "name";
@@ -733,12 +722,11 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetActiveEmployees", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter("SELECT id, name FROM employees WHERE is_active = 1 ORDER BY id", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     var dt = new DataTable();
                     da.Fill(dt);
+                    // Thêm cột hiển thị kết hợp ID - Tên để tránh trùng tên
                     if (!dt.Columns.Contains("display"))
                         dt.Columns.Add("display", typeof(string));
                     foreach (DataRow row in dt.Rows)
@@ -746,14 +734,15 @@ namespace QuanLyNhanVien
                         if (row["id"] == DBNull.Value) continue;
                         row["display"] = string.Format("{0} - {1}", row["id"], row["name"]);
                     }
+                    // Thêm dòng không liên kết ở đầu
                     var r = dt.NewRow();
                     r["id"] = DBNull.Value;
                     r["name"] = "(Chưa chọn)";
                     r["display"] = "(Chưa chọn)";
                     dt.Rows.InsertAt(r, 0);
 
-                    cmbEmployeeId.DisplayMember = "display";
-                    cmbEmployeeId.ValueMember = "id";
+                    cmbEmployeeId.DisplayMember = "display"; // Người dùng nhìn thấy ID - Tên
+                    cmbEmployeeId.ValueMember = "id";        // Giá trị dùng để lưu là ID duy nhất
                     cmbEmployeeId.DataSource = dt;
                 }
             }
@@ -765,10 +754,12 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_GetUsers", conn))
-                using (var da = new SqlDataAdapter(cmd))
+                using (var da = new SqlDataAdapter(@"SELECT u.id, u.username, u.role_id, r.name AS role_name, u.employee_id, e.name AS employee_name, u.is_active, u.last_login, u.created_at, u.updated_at
+                                                     FROM users u
+                                                     INNER JOIN roles r ON u.role_id = r.id
+                                                     LEFT JOIN employees e ON u.employee_id = e.id
+                                                     ORDER BY u.id DESC", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     dtUsers = new DataTable();
                     da.Fill(dtUsers);
                     dataGridViewAdmin.DataSource = dtUsers;
@@ -778,7 +769,7 @@ namespace QuanLyNhanVien
                     if (dataGridViewAdmin.Columns.Contains("role_name")) dataGridViewAdmin.Columns["role_name"].HeaderText = "Vai trò";
                     if (dataGridViewAdmin.Columns.Contains("employee_name")) dataGridViewAdmin.Columns["employee_name"].HeaderText = "Nhân viên";
                     if (dataGridViewAdmin.Columns.Contains("is_active")) dataGridViewAdmin.Columns["is_active"].HeaderText = "Active";
-                    if (dataGridViewAdmin.Columns.Contains("last_login")) dataGridViewAdmin.Columns["last_login"].HeaderText = "Đăng nhập lần cuối";
+                    if (dataGridViewAdmin.Columns.Contains("last_login")) dataGridViewAdmin.Columns["last_login"].HeaderText = "Đăng nhập cuối";
                 }
             }
             catch (Exception ex) { ShowSqlError("Lỗi tải danh sách user", ex); }
@@ -984,9 +975,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_DeleteShift", conn))
+                using (var cmd = new SqlCommand("DELETE FROM shifts WHERE id=@id", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@id", id);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
@@ -1031,21 +1021,20 @@ namespace QuanLyNhanVien
                     cmd.Connection = conn;
                     if (currentShiftId == 0)
                     {
-                        cmd.CommandText = "sp_InsertShift";
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = @"INSERT INTO shifts (employee_id, shift_date, start_time, end_time, break_duration, overtime_hours, status, notes)
+                                            VALUES (@emp,@date,@st,@et,@break,@ot,'Scheduled',@notes)";
                     }
                     else
                     {
-                        cmd.CommandText = "sp_UpdateShift";
-                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = @"UPDATE shifts SET employee_id=@emp, shift_date=@date, start_time=@st, end_time=@et, break_duration=@break, overtime_hours=@ot, notes=@notes WHERE id=@id";
                         cmd.Parameters.AddWithValue("@id", currentShiftId);
                     }
-                    cmd.Parameters.AddWithValue("@employee_id", cmbEmployee.SelectedValue);
-                    cmd.Parameters.AddWithValue("@shift_date", dtpDate.Value.Date);
-                    cmd.Parameters.AddWithValue("@start_time", st);
-                    cmd.Parameters.AddWithValue("@end_time", et);
-                    cmd.Parameters.AddWithValue("@break_duration", br);
-                    cmd.Parameters.AddWithValue("@overtime_hours", nudOverTime == null ? 0 : nudOverTime.Value);
+                    cmd.Parameters.AddWithValue("@emp", cmbEmployee.SelectedValue);
+                    cmd.Parameters.AddWithValue("@date", dtpDate.Value.Date);
+                    cmd.Parameters.AddWithValue("@st", st);
+                    cmd.Parameters.AddWithValue("@et", et);
+                    cmd.Parameters.AddWithValue("@break", br);
+                    cmd.Parameters.AddWithValue("@ot", nudOverTime == null ? 0 : nudOverTime.Value);
                     cmd.Parameters.AddWithValue("@notes", string.IsNullOrWhiteSpace(txtNotes.Text) ? (object)DBNull.Value : txtNotes.Text.Trim());
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
@@ -1112,9 +1101,8 @@ namespace QuanLyNhanVien
             try
             {
                 using (var conn = new SqlConnection(connectionString))
-                using (var cmd = new SqlCommand("sp_DeleteUser", conn))
+                using (var cmd = new SqlCommand("DELETE FROM users WHERE id=@id", conn))
                 {
-                    cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.AddWithValue("@id", currentUserAccountId);
                     conn.Open();
                     cmd.ExecuteNonQuery();
@@ -1171,31 +1159,27 @@ namespace QuanLyNhanVien
                     cmd.Connection = conn;
                     if (isUserAccountAddMode)
                     {
-                        cmd.CommandText = "sp_InsertUser";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@username", username);
-                        cmd.Parameters.AddWithValue("@password_hash", hash);
-                        cmd.Parameters.AddWithValue("@password_salt", salt);
-                        cmd.Parameters.AddWithValue("@role_id", roleId);
-                        cmd.Parameters.AddWithValue("@employee_id", employeeId == DBNull.Value ? (object)DBNull.Value : employeeId);
+                        cmd.CommandText = "INSERT INTO users (username, password_hash, password_salt, role_id, employee_id, is_active) VALUES (@u,@h,@s,@r,@e,1)";
+                        cmd.Parameters.AddWithValue("@u", username);
+                        cmd.Parameters.AddWithValue("@h", hash);
+                        cmd.Parameters.AddWithValue("@s", salt);
+                        cmd.Parameters.AddWithValue("@r", roleId);
+                        cmd.Parameters.AddWithValue("@e", employeeId);
                     }
                     else
                     {
-                        cmd.CommandText = "sp_UpdateUser";
-                        cmd.CommandType = CommandType.StoredProcedure;
-                        cmd.Parameters.AddWithValue("@id", currentUserAccountId);
-                        cmd.Parameters.AddWithValue("@role_id", roleId);
-                        cmd.Parameters.AddWithValue("@employee_id", employeeId == DBNull.Value ? (object)DBNull.Value : employeeId);
+                        if (hash != null && salt != null)
+                            cmd.CommandText = "UPDATE users SET role_id=@r, employee_id=@e, password_hash=@h, password_salt=@s, updated_at=GETDATE() WHERE id=@id";
+                        else
+                            cmd.CommandText = "UPDATE users SET role_id=@r, employee_id=@e, updated_at=GETDATE() WHERE id=@id";
+                        cmd.Parameters.AddWithValue("@r", roleId);
+                        cmd.Parameters.AddWithValue("@e", employeeId);
                         if (hash != null && salt != null)
                         {
-                            cmd.Parameters.AddWithValue("@password_hash", hash);
-                            cmd.Parameters.AddWithValue("@password_salt", salt);
+                            cmd.Parameters.AddWithValue("@h", hash);
+                            cmd.Parameters.AddWithValue("@s", salt);
                         }
-                        else
-                        {
-                            cmd.Parameters.AddWithValue("@password_hash", DBNull.Value);
-                            cmd.Parameters.AddWithValue("@password_salt", DBNull.Value);
-                        }
+                        cmd.Parameters.AddWithValue("@id", currentUserAccountId);
                     }
                     conn.Open();
                     cmd.ExecuteNonQuery();

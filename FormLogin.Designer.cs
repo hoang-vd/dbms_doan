@@ -50,7 +50,7 @@
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(34, 78);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(57, 16);
+            this.label2.Size = new System.Drawing.Size(61, 16);
             this.label2.TabIndex = 1;
             this.label2.Text = "Mật khẩu";
             // 
@@ -72,9 +72,9 @@
             // 
             // btnLogin
             // 
-            this.btnLogin.Location = new System.Drawing.Point(153, 118);
+            this.btnLogin.Location = new System.Drawing.Point(190, 118);
             this.btnLogin.Name = "btnLogin";
-            this.btnLogin.Size = new System.Drawing.Size(89, 32);
+            this.btnLogin.Size = new System.Drawing.Size(143, 32);
             this.btnLogin.TabIndex = 2;
             this.btnLogin.Text = "Đăng nhập";
             this.btnLogin.UseVisualStyleBackColor = true;
@@ -83,12 +83,13 @@
             // btnCancel
             // 
             this.btnCancel.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            this.btnCancel.Location = new System.Drawing.Point(281, 118);
+            this.btnCancel.Location = new System.Drawing.Point(190, 178);
             this.btnCancel.Name = "btnCancel";
-            this.btnCancel.Size = new System.Drawing.Size(89, 32);
+            this.btnCancel.Size = new System.Drawing.Size(143, 32);
             this.btnCancel.TabIndex = 3;
             this.btnCancel.Text = "Thoát";
             this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
             // FormLogin
             // 
@@ -96,7 +97,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.CancelButton = this.btnCancel;
-            this.ClientSize = new System.Drawing.Size(416, 183);
+            this.ClientSize = new System.Drawing.Size(517, 242);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnLogin);
             this.Controls.Add(this.txtPassword);
