@@ -1,3 +1,4 @@
+-- kết hợp insert update user ko cần dùng alter thêm
 USE BookstoreDB;
 GO
 
@@ -9,9 +10,10 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetRoles
 AS
 BEGIN
-    SELECT id, name 
-    FROM roles 
-    WHERE name <> 'Admin' 
+    -- Using view for roles; still exclude 'Admin' for dropdown (if business rule required)
+    SELECT id, name
+    FROM dbo.vw_Roles
+    WHERE name <> 'Admin'
     ORDER BY name;
 END
 GO
@@ -20,8 +22,8 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetRolesForGrid
 AS
 BEGIN
-    SELECT id, name, description, created_at 
-    FROM roles 
+    SELECT id, name, description, created_at
+    FROM dbo.vw_Roles
     ORDER BY name;
 END
 GO
@@ -30,21 +32,9 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetEmployees
 AS
 BEGIN
-    SELECT 
-        e.id, 
-        e.name, 
-        e.email, 
-        e.phone, 
-        e.address, 
-        e.birth_date, 
-        e.role_id, 
-        r.name AS role_name, 
-        e.hire_date, 
-        e.salary, 
-        e.is_active
-    FROM employees e 
-    INNER JOIN roles r ON e.role_id = r.id
-    ORDER BY e.name;
+    SELECT *
+    FROM dbo.vw_Employees
+    ORDER BY name;
 END
 GO
 
@@ -160,8 +150,9 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetEmployeesForShift
 AS
 BEGIN
-    SELECT id, name 
-    FROM employees 
+    -- Use view to ensure consistent join-derived columns if needed later
+    SELECT id, name
+    FROM dbo.vw_Employees
     ORDER BY name;
 END
 GO
@@ -171,46 +162,41 @@ CREATE OR ALTER PROCEDURE sp_GetShiftsByDate
     @shift_date DATE
 AS
 BEGIN
-    SELECT 
-        s.id, 
-        s.employee_id, 
-        e.name AS employee_name, 
-        r.name AS role_name, 
-        s.shift_date, 
-        s.start_time, 
-        s.end_time, 
-        s.break_duration, 
-        s.overtime_hours, 
-        s.status, 
-        s.notes
-    FROM shifts s 
-    INNER JOIN employees e ON s.employee_id = e.id
-    INNER JOIN roles r ON e.role_id = r.id
-    WHERE s.shift_date = @shift_date 
-    ORDER BY s.start_time;
+    SELECT *
+    FROM dbo.vw_Shifts
+    WHERE shift_date = @shift_date
+    ORDER BY start_time;
 END
 GO
 
 -- Insert shift
-CREATE OR ALTER PROCEDURE sp_InsertShift
+CREATE PROCEDURE sp_InsertShift
     @employee_id INT,
     @shift_date DATE,
     @start_time TIME,
     @end_time TIME,
     @break_duration INT,
     @overtime_hours DECIMAL(4,2),
-    @notes NVARCHAR(500)
+    @notes NVARCHAR(500) = NULL, -- Đặt NULL để có thể bỏ qua nếu không cần
+    @status NVARCHAR(20)         -- Bắt buộc phải có trạng thái mới
 AS
 BEGIN
-    INSERT INTO shifts (employee_id, shift_date, start_time, end_time, break_duration, overtime_hours, status, notes)
-    VALUES (@employee_id, @shift_date, @start_time, @end_time, @break_duration, @overtime_hours, 'Scheduled', @notes);
+    -- Kiểm tra nếu end_time lớn hơn start_time (tùy chọn)
+    -- IF @end_time IS NOT NULL AND @end_time <= @start_time
+    -- BEGIN
+    --     RAISERROR('Thời gian kết thúc phải lớn hơn thời gian bắt đầu.', 16, 1);
+    --     RETURN -1;
+    -- END
+
+    INSERT INTO shifts (employee_id, shift_date, start_time, end_time, break_duration, overtime_hours, notes, status)
+    VALUES (@employee_id, @shift_date, @start_time, @end_time, @break_duration, @overtime_hours, @notes, @status);
     
-    RETURN @@ROWCOUNT;
+    RETURN @@ROWCOUNT; -- Trả về số lượng dòng bị ảnh hưởng
 END
 GO
 
 -- Update shift
-CREATE OR ALTER PROCEDURE sp_UpdateShift
+CREATE PROCEDURE sp_UpdateShift
     @id INT,
     @employee_id INT,
     @shift_date DATE,
@@ -218,20 +204,29 @@ CREATE OR ALTER PROCEDURE sp_UpdateShift
     @end_time TIME,
     @break_duration INT,
     @overtime_hours DECIMAL(4,2),
-    @notes NVARCHAR(500)
+    @notes NVARCHAR(500) = NULL, -- Đặt NULL để có thể bỏ qua nếu không cần
+    @status NVARCHAR(20)         -- Cập nhật trạng thái
 AS
 BEGIN
-    UPDATE shifts 
-    SET employee_id = @employee_id, 
-        shift_date = @shift_date, 
-        start_time = @start_time, 
-        end_time = @end_time, 
-        break_duration = @break_duration, 
-        overtime_hours = @overtime_hours, 
-        notes = @notes 
+    -- Kiểm tra xem ID có tồn tại không (tùy chọn)
+    IF NOT EXISTS (SELECT 1 FROM shifts WHERE id = @id)
+    BEGIN
+        RAISERROR('Không tìm thấy ID ca làm việc cần cập nhật.', 16, 1);
+        RETURN -1;
+    END
+
+    UPDATE shifts
+    SET employee_id = @employee_id,
+        shift_date = @shift_date,
+        start_time = @start_time,
+        end_time = @end_time,
+        break_duration = @break_duration,
+        overtime_hours = @overtime_hours,
+        notes = @notes,
+        status = @status
     WHERE id = @id;
-    
-    RETURN @@ROWCOUNT;
+
+    RETURN @@ROWCOUNT; -- Trả về số lượng dòng bị ảnh hưởng
 END
 GO
 
@@ -253,8 +248,8 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetUserRoles
 AS
 BEGIN
-    SELECT id, name 
-    FROM roles 
+    SELECT id, name
+    FROM dbo.vw_Roles
     WHERE name IN ('Admin', 'Manager')
     ORDER BY name;
 END
@@ -264,9 +259,9 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetActiveEmployees
 AS
 BEGIN
-    SELECT id, name 
-    FROM employees 
-    WHERE is_active = 1 
+    SELECT id, name
+    FROM dbo.vw_Employees
+    WHERE is_active = 1
     ORDER BY id;
 END
 GO
@@ -275,36 +270,25 @@ GO
 CREATE OR ALTER PROCEDURE sp_GetUsers
 AS
 BEGIN
-    SELECT 
-        u.id, 
-        u.username, 
-        u.role_id, 
-        r.name AS role_name, 
-        u.employee_id, 
-        e.name AS employee_name, 
-        u.is_active, 
-        u.last_login, 
-        u.created_at, 
-        u.updated_at
-    FROM users u
-    INNER JOIN roles r ON u.role_id = r.id
-    LEFT JOIN employees e ON u.employee_id = e.id
-    ORDER BY u.id DESC;
+    SELECT id, username, role_id, role_name, employee_id, employee_name, is_active, last_login, created_at, updated_at
+    FROM dbo.vw_Users
+    ORDER BY id DESC;
 END
 GO
 
 -- Insert user
 CREATE OR ALTER PROCEDURE sp_InsertUser
     @username NVARCHAR(50),
-    @password_hash VARBINARY(64),
-    @password_salt VARBINARY(32),
+    @password_hash VARBINARY(32),
+    @password_salt VARBINARY(16),
     @role_id INT,
-    @employee_id INT = NULL
+    @employee_id INT = NULL,
+    @is_active BIT = 1
 AS
 BEGIN
-    INSERT INTO users (username, password_hash, password_salt, role_id, employee_id, is_active) 
-    VALUES (@username, @password_hash, @password_salt, @role_id, @employee_id, 1);
-    
+    INSERT INTO users(username, password_hash, password_salt, role_id, employee_id, is_active, created_at)
+    VALUES(@username, @password_hash, @password_salt, @role_id, @employee_id, @is_active, GETDATE());
+
     RETURN @@ROWCOUNT;
 END
 GO
@@ -314,32 +298,24 @@ CREATE OR ALTER PROCEDURE sp_UpdateUser
     @id INT,
     @role_id INT,
     @employee_id INT = NULL,
-    @password_hash VARBINARY(64) = NULL,
-    @password_salt VARBINARY(32) = NULL
+    @is_active BIT = 1,
+    @password_hash VARBINARY(32) = NULL,
+    @password_salt VARBINARY(16) = NULL
 AS
 BEGIN
-    IF @password_hash IS NOT NULL AND @password_salt IS NOT NULL
-    BEGIN
-        UPDATE users 
-        SET role_id = @role_id, 
-            employee_id = @employee_id, 
-            password_hash = @password_hash, 
-            password_salt = @password_salt, 
-            updated_at = GETDATE() 
-        WHERE id = @id;
-    END
-    ELSE
-    BEGIN
-        UPDATE users 
-        SET role_id = @role_id, 
-            employee_id = @employee_id, 
-            updated_at = GETDATE() 
-        WHERE id = @id;
-    END
-    
+    UPDATE users
+    SET role_id = @role_id,
+        employee_id = @employee_id,
+        is_active = @is_active,
+        password_hash = CASE WHEN @password_hash IS NOT NULL THEN @password_hash ELSE password_hash END,
+        password_salt = CASE WHEN @password_salt IS NOT NULL THEN @password_salt ELSE password_salt END,
+        updated_at = GETDATE()
+    WHERE id = @id;
+
     RETURN @@ROWCOUNT;
 END
 GO
+
 
 -- Delete user
 CREATE OR ALTER PROCEDURE sp_DeleteUser

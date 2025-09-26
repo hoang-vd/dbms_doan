@@ -96,6 +96,7 @@
             this.btnCancel4 = new System.Windows.Forms.Button();
             this.btnSave4 = new System.Windows.Forms.Button();
             this.groupBox4 = new System.Windows.Forms.GroupBox();
+            this.chbIsActive = new System.Windows.Forms.CheckBox();
             this.txtPassword = new System.Windows.Forms.TextBox();
             this.txtUsername = new System.Windows.Forms.TextBox();
             this.label21 = new System.Windows.Forms.Label();
@@ -109,6 +110,8 @@
             this.btnDelete4 = new System.Windows.Forms.Button();
             this.btnEdit4 = new System.Windows.Forms.Button();
             this.btnAdd4 = new System.Windows.Forms.Button();
+            this.label22 = new System.Windows.Forms.Label();
+            this.cmbExperience = new System.Windows.Forms.ComboBox();
             this.tabControl1.SuspendLayout();
             this.tabPageEmployee.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -608,6 +611,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.cmbExperience);
+            this.groupBox3.Controls.Add(this.label22);
             this.groupBox3.Controls.Add(this.nudOverTime);
             this.groupBox3.Controls.Add(this.label17);
             this.groupBox3.Controls.Add(this.dtpEnd);
@@ -622,7 +627,7 @@
             this.groupBox3.Controls.Add(this.label11);
             this.groupBox3.Location = new System.Drawing.Point(1244, 53);
             this.groupBox3.Name = "groupBox3";
-            this.groupBox3.Size = new System.Drawing.Size(324, 489);
+            this.groupBox3.Size = new System.Drawing.Size(324, 535);
             this.groupBox3.TabIndex = 18;
             this.groupBox3.TabStop = false;
             this.groupBox3.Text = "Ca làm việc";
@@ -667,7 +672,7 @@
             // 
             // txtNotes
             // 
-            this.txtNotes.Location = new System.Drawing.Point(66, 302);
+            this.txtNotes.Location = new System.Drawing.Point(66, 371);
             this.txtNotes.Multiline = true;
             this.txtNotes.Name = "txtNotes";
             this.txtNotes.Size = new System.Drawing.Size(252, 158);
@@ -694,7 +699,7 @@
             // label15
             // 
             this.label15.AutoSize = true;
-            this.label15.Location = new System.Drawing.Point(6, 308);
+            this.label15.Location = new System.Drawing.Point(6, 377);
             this.label15.Name = "label15";
             this.label15.Size = new System.Drawing.Size(54, 16);
             this.label15.TabIndex = 0;
@@ -761,7 +766,7 @@
             // btnCancel3
             // 
             this.btnCancel3.BackColor = System.Drawing.Color.LightCoral;
-            this.btnCancel3.Location = new System.Drawing.Point(1440, 548);
+            this.btnCancel3.Location = new System.Drawing.Point(1451, 594);
             this.btnCancel3.Name = "btnCancel3";
             this.btnCancel3.Size = new System.Drawing.Size(91, 40);
             this.btnCancel3.TabIndex = 14;
@@ -772,7 +777,7 @@
             // btnSave3
             // 
             this.btnSave3.BackColor = System.Drawing.Color.LimeGreen;
-            this.btnSave3.Location = new System.Drawing.Point(1299, 548);
+            this.btnSave3.Location = new System.Drawing.Point(1310, 594);
             this.btnSave3.Name = "btnSave3";
             this.btnSave3.Size = new System.Drawing.Size(99, 40);
             this.btnSave3.TabIndex = 15;
@@ -864,6 +869,7 @@
             // 
             // groupBox4
             // 
+            this.groupBox4.Controls.Add(this.chbIsActive);
             this.groupBox4.Controls.Add(this.txtPassword);
             this.groupBox4.Controls.Add(this.txtUsername);
             this.groupBox4.Controls.Add(this.label21);
@@ -878,6 +884,17 @@
             this.groupBox4.TabIndex = 15;
             this.groupBox4.TabStop = false;
             this.groupBox4.Text = "Phân quyền";
+            // 
+            // chbIsActive
+            // 
+            this.chbIsActive.AutoSize = true;
+            this.chbIsActive.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chbIsActive.Location = new System.Drawing.Point(124, 266);
+            this.chbIsActive.Name = "chbIsActive";
+            this.chbIsActive.Size = new System.Drawing.Size(97, 24);
+            this.chbIsActive.TabIndex = 6;
+            this.chbIsActive.Text = "is_active";
+            this.chbIsActive.UseVisualStyleBackColor = true;
             // 
             // txtPassword
             // 
@@ -999,6 +1016,24 @@
             this.btnAdd4.Text = "Thêm";
             this.btnAdd4.UseVisualStyleBackColor = false;
             // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(11, 304);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(82, 16);
+            this.label22.TabIndex = 7;
+            this.label22.Text = "Kinh nghiệm:";
+            // 
+            // cmbExperience
+            // 
+            this.cmbExperience.FormattingEnabled = true;
+            this.cmbExperience.Location = new System.Drawing.Point(99, 304);
+            this.cmbExperience.Name = "cmbExperience";
+            this.cmbExperience.Size = new System.Drawing.Size(219, 24);
+            this.cmbExperience.TabIndex = 8;
+            this.cmbExperience.SelectedIndexChanged += new System.EventHandler(this.cmbExperience_SelectedIndexChanged);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -1116,6 +1151,9 @@
     private System.Windows.Forms.ComboBox cmbEmployeeId;
         private System.Windows.Forms.TextBox txtPassword;
         private System.Windows.Forms.TextBox txtUsername;
+        private System.Windows.Forms.CheckBox chbIsActive;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.ComboBox cmbExperience;
     }
 }
 

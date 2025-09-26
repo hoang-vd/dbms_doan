@@ -1330,10 +1330,5 @@ namespace QuanLyNhanVien
                 dtEmployees.DefaultView.RowFilter = string.Format("CONVERT([name], 'System.String') LIKE '%{0}%'", escaped.ToUpper());
             }
         }
-
-        private void cmbExperience_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-        }
     }
 }

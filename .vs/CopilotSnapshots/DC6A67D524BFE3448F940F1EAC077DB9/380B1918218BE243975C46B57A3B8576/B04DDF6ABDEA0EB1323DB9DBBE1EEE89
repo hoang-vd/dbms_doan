@@ -201,8 +201,6 @@ namespace QuanLyNhanVien
                 using (var cmd = new SqlCommand("sp_GetEmployees", conn))
                 using (var da = new SqlDataAdapter(cmd))
                 {
-                    // NOTE: sp_GetEmployees now (or can be updated to) SELECT * FROM dbo.vw_Employees.
-                    // This keeps UI code unchanged while allowing the SELECT shape to be managed in view.sql.
                     cmd.CommandType = CommandType.StoredProcedure;
                     dtEmployees = new DataTable();
                     da.Fill(dtEmployees);
@@ -354,7 +352,7 @@ namespace QuanLyNhanVien
                 try { cmbEmployeeId.SelectedValue = row.Cells["employee_id"].Value; } catch { }
             }
             // Active state
-            if (chbIsActive != null && dataGridViewAdmin.Columns.Contains("is_active") && row.Cells["is_active"].Value != DBNull.Value)
+            if (chbIsActive != null && row.Cells.Contains("is_active") && row.Cells["is_active"].Value != DBNull.Value)
             {
                 try { chbIsActive.Checked = Convert.ToBoolean(row.Cells["is_active"].Value); } catch { chbIsActive.Checked = true; }
             }
@@ -816,14 +814,6 @@ namespace QuanLyNhanVien
                 nudOverTime.Increment = 0.25M; // 15 phút
                 nudOverTime.Value = 0;
             }
-            // Populate shift status (kinh nghiệm) combo box: values follow DB constraint ('Mới','Lâu năm')
-            if (cmbExperience != null)
-            {
-                cmbExperience.Items.Clear();
-                cmbExperience.Items.Add("Mới");
-                cmbExperience.Items.Add("Lâu năm");
-                cmbExperience.SelectedIndex = 0; // default
-            }
         }
 
         private void ClearShiftForm()
@@ -835,7 +825,6 @@ namespace QuanLyNhanVien
             nudBreak.Value = 0;
             txtNotes.Clear();
             if (nudOverTime != null) nudOverTime.Value = 0;
-            if (cmbExperience != null && cmbExperience.Items.Count > 0) cmbExperience.SelectedIndex = 0; // default 'Mới'
         }
 
         private void SetShiftFormState(bool editing)
@@ -847,8 +836,7 @@ namespace QuanLyNhanVien
             button4.Enabled = !editing; // Add
             btnEdit3.Enabled = !editing && dgvShifts.SelectedRows.Count > 0;
             btnDelete3.Enabled = !editing && dgvShifts.SelectedRows.Count > 0;
-            btnCoverage.Enabled = !editing;
-            if (cmbExperience != null) cmbExperience.Enabled = editing;            
+            btnCoverage.Enabled = !editing;            
         }
 
         private void DgvShifts_SelectionChanged(object sender, EventArgs e)
@@ -885,16 +873,6 @@ namespace QuanLyNhanVien
                     if (nudOverTime != null) nudOverTime.Value = Math.Min(oth, nudOverTime.Maximum);
             }
             txtNotes.Text = row.Cells["notes"].Value?.ToString();
-            // Load status -> cmbExperience
-            if (cmbExperience != null && dgvShifts.Columns.Contains("status"))
-            {
-                var statusVal = row.Cells["status"].Value?.ToString();
-                if (!string.IsNullOrEmpty(statusVal))
-                {
-                    int idx = cmbExperience.Items.IndexOf(statusVal);
-                    if (idx >= 0) cmbExperience.SelectedIndex = idx;
-                }
-            }
             btnEdit3.Enabled = true;
             btnDelete3.Enabled = true;
         }
@@ -1053,17 +1031,6 @@ namespace QuanLyNhanVien
                     return;
                 }
             }
-            // Validate status selection
-            string statusValue = null;
-            if (cmbExperience != null)
-            {
-                if (cmbExperience.SelectedIndex < 0)
-                {
-                    MessageBox.Show("Chọn trạng thái (Mới / Lâu năm).", "Thông báo", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    return;
-                }
-                statusValue = cmbExperience.SelectedItem.ToString();
-            }
             try
             {
                 using (var conn = new SqlConnection(connectionString))
@@ -1088,8 +1055,6 @@ namespace QuanLyNhanVien
                     cmd.Parameters.AddWithValue("@break_duration", br);
                     cmd.Parameters.AddWithValue("@overtime_hours", nudOverTime == null ? 0 : nudOverTime.Value);
                     cmd.Parameters.AddWithValue("@notes", string.IsNullOrWhiteSpace(txtNotes.Text) ? (object)DBNull.Value : txtNotes.Text.Trim());
-                    if (statusValue != null)
-                        cmd.Parameters.AddWithValue("@status", statusValue);
                     conn.Open();
                     int rows = cmd.ExecuteNonQuery();
                     if (rows > 0)
@@ -1329,11 +1294,6 @@ namespace QuanLyNhanVien
                 var escaped = EscapeLikeValue(keyword);
                 dtEmployees.DefaultView.RowFilter = string.Format("CONVERT([name], 'System.String') LIKE '%{0}%'", escaped.ToUpper());
             }
-        }
-
-        private void cmbExperience_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
         }
     }
 }

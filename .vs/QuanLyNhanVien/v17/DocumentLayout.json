@@ -3,32 +3,24 @@
   "WorkspaceRootPath": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|c:\\users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\quanlynhanvien\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\userseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:userseeder.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\passwordhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:passwordhelper.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\usersession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:usersession.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{EB4734FF-944C-455A-8A04-903523561CE2}|QuanLyNhanVien.csproj|C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\formlogin.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
@@ -54,7 +46,7 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 3,
+          "SelectedChildIndex": 6,
           "Children": [
             {
               "$type": "Bookmark",
@@ -70,13 +62,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 0,
+              "DocumentIndex": 3,
               "Title": "FormLogin.cs",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs",
               "RelativeDocumentMoniker": "FormLogin.cs",
               "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs",
               "RelativeToolTip": "FormLogin.cs",
-              "ViewState": "AgIAAEAAAAAAAAAAAAAswA4AAAA4AAAAAAAAAA==",
+              "ViewState": "AgIAAGsAAAAAAAAAAAAswC0AAAAPAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-24T06:12:56.858Z",
               "EditorCaption": ""
@@ -95,7 +87,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 2,
               "Title": "Program.cs",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Program.cs",
               "RelativeDocumentMoniker": "Program.cs",
@@ -108,39 +100,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "UserSeeder.cs",
-              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSeeder.cs",
-              "RelativeDocumentMoniker": "UserSeeder.cs",
-              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSeeder.cs",
-              "RelativeToolTip": "UserSeeder.cs",
-              "ViewState": "AgIAADEAAAAAAAAAAAAQwCQAAAA5AAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-24T06:47:59.545Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 5,
-              "Title": "UserSession.cs",
-              "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSession.cs",
-              "RelativeDocumentMoniker": "UserSession.cs",
-              "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\UserSession.cs",
-              "RelativeToolTip": "UserSession.cs",
-              "ViewState": "AgIAAAgAAAAAAAAAAAA3wBAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-09-24T06:30:17.29Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 0,
               "Title": "Form1.cs",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.cs",
               "RelativeDocumentMoniker": "Form1.cs",
               "ToolTip": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.cs",
               "RelativeToolTip": "Form1.cs",
-              "ViewState": "AgIAACkBAAAAAAAAAADwv+EEAAANAAAAAAAAAA==",
+              "ViewState": "AgIAADAEAAAAAAAAAAAMwEQEAAAgAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
               "WhenOpened": "2025-09-22T14:15:07.415Z",
               "EditorCaption": ""
@@ -160,7 +126,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 7,
+              "DocumentIndex": 5,
               "Title": "FormLogin.cs [Design]",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.cs",
               "RelativeDocumentMoniker": "FormLogin.cs",
@@ -172,7 +138,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 8,
               "Title": "FormLogin.Designer.cs",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.Designer.cs",
               "RelativeDocumentMoniker": "FormLogin.Designer.cs",
@@ -185,7 +151,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 6,
               "Title": "Form1.Designer.cs",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\Form1.Designer.cs",
               "RelativeDocumentMoniker": "Form1.Designer.cs",
@@ -197,7 +163,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 7,
               "Title": "FormLogin.resx",
               "DocumentMoniker": "C:\\Users\\hoang\\source\\repos\\dbms\\quanlynhanvien\\QuanLyNhanVien\\FormLogin.resx",
               "RelativeDocumentMoniker": "FormLogin.resx",

@@ -57,7 +57,6 @@ BEGIN
 END
 GO
 
-
 -- 3. SHIFTS TABLE (References employees)
 IF NOT EXISTS (SELECT * FROM sysobjects WHERE name='shifts' AND xtype='U')
 BEGIN
@@ -68,15 +67,8 @@ BEGIN
         start_time TIME NOT NULL,
         end_time TIME,
         break_duration INT DEFAULT 0, -- Minutes
-        total_hours AS (
-            CASE 
-                WHEN end_time IS NOT NULL 
-                THEN DATEDIFF(MINUTE, start_time, end_time) - ISNULL(break_duration, 0)
-                ELSE NULL 
-            END / 60.0
-        ) PERSISTED,
         overtime_hours DECIMAL(4,2) DEFAULT 0,
-        status NVARCHAR(20) DEFAULT 'Scheduled' CHECK (status IN ('Scheduled', 'Started', 'Completed', 'Cancelled')),
+        status NVARCHAR(20) DEFAULT 'Mới' CHECK (status IN ('Mới', 'Lâu năm')),
         notes NVARCHAR(500),
         created_at DATETIME DEFAULT GETDATE(),
         
@@ -89,28 +81,12 @@ GO
 -- INDEXES (Only remaining tables)
 -- =============================================
 CREATE NONCLUSTERED INDEX IX_roles_name ON roles(name);
-CREATE NONCLUSTERED INDEX IX_employees_email ON employees(email);
 CREATE NONCLUSTERED INDEX IX_employees_role_id ON employees(role_id);
 CREATE NONCLUSTERED INDEX IX_employees_is_active ON employees(is_active);
 -- Shifts indexes
 CREATE NONCLUSTERED INDEX IX_shifts_employee_id ON shifts(employee_id);
 CREATE NONCLUSTERED INDEX IX_shifts_shift_date ON shifts(shift_date);
 CREATE NONCLUSTERED INDEX IX_shifts_status ON shifts(status);
--- Extended properties (optional)
-EXEC sys.sp_addextendedproperty 
-    @name=N'MS_Description', @value=N'Bảng vai trò nhân viên',
-    @level0type=N'SCHEMA', @level0name=N'dbo',
-    @level1type=N'TABLE', @level1name=N'roles';
-
-EXEC sys.sp_addextendedproperty 
-    @name=N'MS_Description', @value=N'Bảng thông tin nhân viên',
-    @level0type=N'SCHEMA', @level0name=N'dbo',
-    @level1type=N'TABLE', @level1name=N'employees';
-
-EXEC sys.sp_addextendedproperty 
-    @name=N'MS_Description', @value=N'Bảng ca làm việc',
-    @level0type=N'SCHEMA', @level0name=N'dbo',
-    @level1type=N'TABLE', @level1name=N'shifts';
 
 PRINT N'Tạo bảng (roles, employees, shifts) thành công!';
 GO
